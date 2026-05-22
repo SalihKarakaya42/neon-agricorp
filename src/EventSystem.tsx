@@ -1,128 +1,63 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useLanguage } from './i18n';
 
 interface EventSystemProps {
   onEnergyDrawReport: (draw: number) => void;
   onWaterDrawReport: (draw: number) => void;
   onCreditsChange: (change: number) => void;
-  onFactoryEnergyConsumptionReport: (draw: number) => void; // To stop factories, we need to signal them? No, GameLoop handles stopping based on E level.
   isEnergyCritical: boolean;
-  currentEnergy: number;
-  maxEnergyCapacity: number;
 }
 
-const EVENT_TRIGGER_INTERVAL_SECONDS = 60; // Trigger a potential event every 60 seconds
+const EVENT_TRIGGER_INTERVAL_SECONDS = 60;
 
-const EventSystem: React.FC<EventSystemProps> = ({ 
-    onEnergyDrawReport, 
-    onWaterDrawReport, 
-    onCreditsChange,
-    isEnergyCritical,
-    currentEnergy,
-    maxEnergyCapacity
-}) => {
+const EventSystem: React.FC<EventSystemProps> = ({ onEnergyDrawReport, onWaterDrawReport, onCreditsChange, isEnergyCritical: _isEnergyCritical }) => {
+  const { t } = useLanguage();
   const [lastEventTime, setLastEventTime] = useState(Date.now());
-  const [currentEvent, setCurrentEvent] = useState<{ name: string, duration: number, effect: () => void } | null>(null);
+  const [currentEvent, setCurrentEvent] = useState<{ name: string; duration: number; effect: () => void } | null>(null);
+  const tname = (key: string) => t(`events.${key}`) || key;
 
-  // Define possible events and their effects. Effects will return a function describing the draw/bonus.
-  const possibleEvents: { name: string, minDuration: number, maxDuration: number, effect: () => { drawEnergy?: number, drawWater?: number, creditChange?: number } }[] = [
-    {
-      name: 'Radiation Leak',
-      minDuration: 10,
-      maxDuration: 20,
-      effect: () => ({ drawEnergy: 5, drawWater: 10 }) // Energy drain, Water drain
-    },
-    {
-      name: 'Pipe Condensation Surge',
-      minDuration: 5,
-      maxDuration: 15,
-      effect: () => ({ drawWater: -5 }) // Water BONUS (Negative draw = production boost)
-    },
-    {
-      name: 'Hacker Attack',
-      minDuration: 15,
-      maxDuration: 30,
-      effect: () => ({ creditChange: -100 }) // Lose credits
-    },
-    {
-      name: 'Black Market Opportunity',
-      minDuration: 5,
-      maxDuration: 10,
-      effect: () => ({ creditChange: 500 }) // Gain credits
-    },
+  const possibleEvents: { name: string; minDuration: number; maxDuration: number; effect: () => { drawEnergy?: number; drawWater?: number; creditChange?: number } }[] = [
+    { name: 'Radiation Leak', minDuration: 10, maxDuration: 20, effect: () => ({ drawEnergy: 5, drawWater: 10 }) },
+    { name: 'Pipe Condensation Surge', minDuration: 5, maxDuration: 15, effect: () => ({ drawWater: -5 }) },
+    { name: 'Hacker Attack', minDuration: 15, maxDuration: 30, effect: () => ({ creditChange: -100 }) },
+    { name: 'Black Market Opportunity', minDuration: 5, maxDuration: 10, effect: () => ({ creditChange: 500 }) },
   ];
 
   const triggerEvent = useCallback(() => {
-    const randomIndex = Math.floor(Math.random() * possibleEvents.length);
-    const eventDef = possibleEvents[randomIndex];
-    const duration = Math.floor(Math.random() * (eventDef.maxDuration - eventDef.minDuration + 1)) + eventDef.minDuration;
-    
-    const effectData = eventDef.effect();
-
+    const idx = Math.floor(Math.random() * possibleEvents.length);
+    const def = possibleEvents[idx];
+    const duration = Math.floor(Math.random() * (def.maxDuration - def.minDuration + 1)) + def.minDuration;
+    const data = def.effect();
     setCurrentEvent({
-      name: eventDef.name,
-      duration: duration,
-      effect: () => {
-        if (effectData.drawEnergy) onEnergyDrawReport(effectData.drawEnergy);
-        if (effectData.drawWater) onWaterDrawReport(effectData.drawWater);
-        if (effectData.creditChange) onCreditsChange(effectData.creditChange);
-      }
+      name: def.name, duration,
+      effect: () => { if (data.drawEnergy) onEnergyDrawReport(data.drawEnergy); if (data.drawWater) onWaterDrawReport(data.drawWater); if (data.creditChange) onCreditsChange(data.creditChange); }
     });
     setLastEventTime(Date.now());
-    console.log(\`EVENT TRIGGERED: \${eventDef.name} for \${duration} seconds.\`);
-  }, [possibleEvents, onEnergyDrawReport, onWaterDrawReport, onCreditsChange]);
-
+  }, [possibleEvents]);
 
   useEffect(() => {
-    // 1. Event Tick Timer (Checks if a new event should start)
-    const eventStartInterval = setInterval(() => {
-        const timeSinceLast = (Date.now() - lastEventTime) / 1000;
-        if (timeSinceLast > EVENT_TRIGGER_INTERVAL_SECONDS && !currentEvent) {
-            triggerEvent();
-        }
-    }, 1000);
-
-    // 2. Event Active Timer (Manages current event duration)
-    let eventActiveInterval: NodeJS.Timeout | null = null;
+    const si = setInterval(() => { if ((Date.now() - lastEventTime) / 1000 > EVENT_TRIGGER_INTERVAL_SECONDS && !currentEvent) triggerEvent(); }, 1000);
+    let ai: ReturnType<typeof setInterval> | null = null;
     if (currentEvent) {
-        // Apply initial effect immediately
-        currentEvent.effect(); 
-        
-        eventActiveInterval = setInterval(() => {
-            setCurrentEvent(prevEvent => {
-                if (prevEvent && prevEvent.duration > 1) {
-                    // Continue effect application if needed, or just decrease timer
-                    // For simplicity, we only apply effects at the start, then just tick down.
-                    return { ...prevEvent, duration: prevEvent.duration - 1 };
-                } else {
-                    console.log(\`EVENT ENDED: \${prevEvent?.name}\`);
-                    // Event ends: clear draws/bonuses, reset reports to 0
-                    onEnergyDrawReport(0);
-                    onWaterDrawReport(0);
-                    return null;
-                }
-            });
-        }, 1000);
+      currentEvent.effect();
+      ai = setInterval(() => {
+        setCurrentEvent(prev => { if (prev && prev.duration > 1) return { ...prev, duration: prev.duration - 1 }; onEnergyDrawReport(0); onWaterDrawReport(0); return null; });
+      }, 1000);
     }
-
-    return () => {
-        clearInterval(eventStartInterval);
-        if (eventActiveInterval) clearInterval(eventActiveInterval);
-    };
-  }, [currentEvent, lastEventTime, triggerEvent, onEnergyDrawReport, onWaterDrawReport]);
-  
-  // Safety: If energy is critical, immediately stop applying any draws from events
-  useEffect(() => {
-      if (isEnergyCritical && currentEvent) {
-          console.warn("Energy critical: Event draws temporarily suspended.");
-          // NOTE: A better implementation would buffer draws, but here we just stop them if critical.
-      }
-  }, [isEnergyCritical, currentEvent]);
+    return () => { clearInterval(si); if (ai) clearInterval(ai); };
+  }, [currentEvent, lastEventTime, triggerEvent]);
 
   return (
-    <div>
-      <h3>Environment Control</h3>
-      <p>Last Event Check: {currentEvent ? `${currentEvent.name} (${currentEvent.duration}s left)` : 'Idle'}</p>
-      <p>Potential Effect: {currentEvent ? JSON.stringify(possibleEvents.find(e => e.name === currentEvent.name)?.effect()) : 'None'}</p>
+    <div className="glass-panel rounded-xl p-4">
+      <h3 className="font-mono text-[10px] text-[#849495] uppercase tracking-widest mb-2">{t('event.title')}</h3>
+      {currentEvent ? (
+        <div className="border border-pink-500/30 bg-pink-950/20 rounded-lg p-3">
+          <p className="text-xs font-bold text-pink-400">{tname(currentEvent.name)}</p>
+          <p className="text-[10px] font-mono text-[#b9cacb]/70 mt-1">{currentEvent.duration}{t('event.left')}</p>
+        </div>
+      ) : (
+        <p className="text-xs text-[#b9cacb]/60 text-center">{t('event.idle')}</p>
+      )}
     </div>
   );
 };

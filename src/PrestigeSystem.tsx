@@ -1,68 +1,42 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { supabase } from './supabaseClient';
+import type React from 'react';
+import { useLanguage } from './i18n';
 
 interface PrestigeSystemProps {
-    currentCredits: number;
-    onCreditsChange: (newCredits: number) => void;
-    onResetGame: () => void; // Function to reset perishable state
-    onPermanentStatBoost: (statName: string, boostValue: number) => void; // Function to apply permanent boosts
-    unlockedPrestigeLevel: number;
-    researchState: { techs: { id: string; level: number; isResearched: boolean }[]; timers: { [key: string]: number } };
+  currentCredits: number;
+  onCreditsChange: (newCredits: number) => void;
+  onResetGame: () => void;
+  onPermanentStatBoost: (statName: string, boostValue: number) => void;
+  unlockedPrestigeLevel: number;
+  researchState: { techs: { id: string; level: number; isResearched: boolean }[]; timers: { [key: string]: number } };
 }
 
-const PrestigeSystem: React.FC<PrestigeSystemProps> = ({
-    currentCredits,
-    onCreditsChange,
-    onResetGame,
-    onPermanentStatBoost,
-    unlockedPrestigeLevel,
-    researchState
-}) => {
-    const PRESTIGE_COST_BASE = 50000;
-    const PRESTIGE_BONUS_PER_LEVEL = 0.1; // 10% flat increase to base production per level (as simulated in GameLoop)
-    
-    const currentPrestigeCost = Math.round(PRESTIGE_COST_BASE * Math.pow(unlockedPrestigeLevel + 1, 2)); // Adjusted cost scaling
-    
-    const canPrestige = currentCredits >= currentPrestigeCost && researchState.techs.find(t => t.id === 'prestige-1' && t.isResearched);
+const PrestigeSystem: React.FC<PrestigeSystemProps> = ({ currentCredits, onCreditsChange, onResetGame, onPermanentStatBoost, unlockedPrestigeLevel, researchState }) => {
+  const { t } = useLanguage();
+  const cost = Math.round(50000 * Math.pow(unlockedPrestigeLevel + 1, 2));
+  const canPrestige = currentCredits >= cost && researchState.techs.find(t => t.id === 'prestige-1' && t.isResearched);
 
-    const initiatePrestige = async () => {
-        if (!canPrestige) return;
+  const initiatePrestige = () => {
+    if (!canPrestige) return;
+    onCreditsChange(currentCredits - cost);
+    onPermanentStatBoost('baseEnergyProduction', 5);
+    onResetGame();
+    alert(`Prestige Cycle ${unlockedPrestigeLevel + 1} Completed!`);
+  };
 
-        console.log(`Initiating Prestige Cycle ${unlockedPrestigeLevel + 1}.`);
-
-        // 1. Deduct Cost
-        onCreditsChange(currentCredits - currentPrestigeCost);
-
-        // 2. Apply Permanent Boost (Only once per level achieved)
-        const newLevel = unlockedPrestigeLevel + 1;
-        
-        // Apply permanent boost to base production (per prestige level achieved)
-        onPermanentStatBoost('baseEnergyProduction', 5); 
-        // We are relying on GameLoop to set unlockedPrestige state itself, so we don't do it here.
-        
-        // 3. Reset Perishable State
-        onResetGame();
-        
-        alert(`Prestige Cycle ${newLevel} Completed! Permanent energy production boost applied.`);
-    };
-
-    return (
-        <div style={{ border: '2px solid #ff00ff', margin: '10px auto', padding: '15px', backgroundColor: 'rgba(50, 0, 50, 0.5)' }}>
-            <h3>Prestige System</h3>
-            <p>Current Prestige Level: {unlockedPrestigeLevel}</p>
-            <p>Next Prestige Cost: {currentPrestigeCost} Credits</p>
-            <p>Next Permanent Bonus: +5 Base Energy Production per level</p>
-            <p style={{ color: '#ffff00' }}>Requirement: Research 'Civilization Blueprint' (prestige-1)</p>
-            
-            <button 
-                onClick={initiatePrestige}
-                disabled={!canPrestige}
-                style={{ backgroundColor: canPrestige ? '#ff00ff' : '#550055', color: 'white', borderColor: '#ff00ff' }}
-            >
-                {canPrestige ? `ENTER PRESTIGE CYCLE ${unlockedPrestigeLevel + 1}` : 'Prerequisites Not Met'}
-            </button>
-        </div>
-    );
+  return (
+    <div className="glass-panel rounded-xl p-4 border-l-2 border-l-pink-500">
+      <h3 className="font-mono text-[10px] text-pink-400 uppercase tracking-widest font-extrabold mb-2">{t('prestige.title')}</h3>
+      <p className="text-xs text-[#b9cacb] mb-1">{t('prestige.currentLevel')}: <strong className="text-white">{unlockedPrestigeLevel}</strong></p>
+      <p className="text-xs text-[#b9cacb] mb-1">{t('prestige.nextCost')}: <strong className="text-[#00f3ff]">{cost}</strong></p>
+      <p className="text-[10px] text-[#b9cacb]/70 mb-1">{t('prestige.nextBonus')}</p>
+      <button onClick={initiatePrestige} disabled={!canPrestige}
+        className={`w-full py-2 mt-2 rounded font-mono text-[10px] font-bold uppercase transition-all cursor-pointer ${
+          canPrestige ? 'bg-pink-500 text-white shadow-[0_0_15px_rgba(255,36,228,0.3)] active:scale-95' : 'border border-white/10 text-[#3a494b] cursor-not-allowed'
+        }`}>
+        {canPrestige ? `${t('prestige.enterCycle')} ${unlockedPrestigeLevel + 1}` : t('prestige.prerequisitesNotMet')}
+      </button>
+    </div>
+  );
 };
 
 export default PrestigeSystem;

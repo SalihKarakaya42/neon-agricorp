@@ -118,3 +118,32 @@
 843: "I built humanity's last food empire underground."
 844: 
 845: ---
+
+# 🌐 i18n ÇOKLU DİL SİSTEMİ
+
+## Mimari
+
+src/i18n/
+  types.ts              -> Translation arayüzü
+  tr.ts                 -> Türkçe çeviriler
+  en.ts                 -> İngilizce çeviriler (şablon)
+  LanguageContext.tsx    -> React Context + Provider + useLanguage hook
+  index.ts              -> Barrel export
+
+## Kullanım
+
+import { useLanguage } from './i18n';
+const { t, lang, setLang } = useLanguage();
+t('app.title')  -> dot notation ile çeviri
+
+## Yeni Dil Ekleme
+
+1. src/i18n/xx.ts oluştur (örn: de.ts)
+2. LanguageContext.tsx'e import et + type + translations'a ekle
+3. Tüm çeviriler aynı yapıda olmalı (types.ts'deki interface)
+
+## Ayar Menüsü (Gelecek)
+
+- setLang('en') / setLang('tr') ile dil değişir
+- localStorage'a kaydedilir
+- Ayarlar menüsüne dil seçici eklenecek

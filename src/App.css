@@ -1,0 +1,85 @@
+.App {
+  text-align: center;
+  background-color: #050505; /* Ultra dark */
+  color: #00ffff; /* Neon cyan text */
+  min-height: 100vh;
+  font-family: 'Courier New', Courier, monospace;
+  perspective: 1200px;
+  overflow-x: hidden;
+  /* Global Fog Effect Simulation */
+  background-image: radial-gradient(circle at 50% 50%, rgba(10, 5, 10, 0.8) 0%, rgba(0, 0, 0, 1) 70%);
+}
+
+.App-header {
+  background-color: #000000;
+  padding: 20px;
+  border-bottom: 2px solid #ff00ff; /* Neon pink accent */
+  text-shadow: 0 0 8px #ff00ff;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2.5em;
+  text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+}
+
+main {
+  padding: 30px 10px;
+  /* Apply a slight isometric tilt to the main viewport */
+  transform: rotateX(15deg) translateY(10px); 
+  transform-style: preserve-3d; 
+}
+
+/* Styling for resource displays and system containers */
+div[style*="border: 1px solid"] {
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px auto;
+    background-color: rgba(0, 0, 20, 0.4);
+    border-width: 2px !important;
+    border-color: inherit !important;
+}
+
+p {
+  font-size: 0.9em;
+  line-height: 1.4;
+}
+
+button {
+    background: #00ffff;
+    color: #000000;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+button:disabled {
+    background: #005555;
+    color: #555555;
+    cursor: not-allowed;
+}
+
+@keyframes neon-flicker {
+    0%, 100% { text-shadow: 0 0 3px #00ffff, 0 0 10px #00ffff, 0 0 20px #00ffff; }
+    5% { text-shadow: 0 0 1px #00ffff, 0 0 1px #00ffff, 0 0 2px #00ffff; }
+    10% { text-shadow: 0 0 3px #00ffff, 0 0 10px #00ffff, 0 0 20px #00ffff; }
+    15% { text-shadow: none; }
+    20% { text-shadow: 0 0 2px #00ffff, 0 0 7px #00ffff, 0 0 15px #00ffff; }
+    25% { text-shadow: 0 0 3px #00ffff, 0 0 10px #00ffff, 0 0 20px #00ffff; }
+    30% { text-shadow: none; }
+}
+
+.App-header h1 {
+    animation: neon-flicker 5s infinite alternate;
+}
+
+h3 {
+    color: #ff00ff;
+    text-shadow: 0 0 5px #ff00ff;
+    border-bottom: 1px solid rgba(255, 0, 255, 0.3);
+    padding-bottom: 5px;
+}

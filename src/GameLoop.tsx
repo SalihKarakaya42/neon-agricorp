@@ -567,6 +567,8 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId, username, avatarId }) => {
                 tier4Unlocked={tier4Unlocked}
                 waterPerSec={waterPerSec}
                 energyPerSec={energyPerSec}
+                maxWater={maxWaterCapacity}
+                maxEnergy={maxEnergyCapacity}
               />
             </>
           )

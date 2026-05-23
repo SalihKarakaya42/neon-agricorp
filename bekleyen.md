@@ -6,6 +6,7 @@
 - [ ] Tier 2 ekinleri ekle: Cyber Corn, Bio Soy (şu an sadece Neon Tomato var)
 - [ ] Tier 3 ekinleri ekle: Quantum Fungus, Plasma Mushroom (şu an sadece Glow Berry var)
 - [ ] **Edge Function deploy**: harvest, start-factory güncel kodla yeniden dağıtılmalı
+- [ ] **Su/Enerji seviye sistemi Sunucu sync**: `getLevelInfo` frontend-only, sunucuya da eklenmeli
 
 ## Orta Vade
 - [ ] **Karaborsa Sistemi** (Black Market): Yüksek risk/yüksek ödül

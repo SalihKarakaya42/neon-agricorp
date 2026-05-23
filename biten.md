@@ -88,3 +88,16 @@
 - [x] Fabrika: ürün adı full width, süre sağ üst köşe
 - [x] Fabrika: per-unit formül (2 buğday → 1 un gibi)
 - [x] Yarım şeffaf paneller + koyu başlık şeritleri
+- [x] Başlık şeritleri saydamlığı %50 → %30 düşürüldü
+- [x] Pod yazı tipleri Su/Enerji ile aynı hale getirildi
+- [x] Boş pod ⬜ ve "büyüyen ürün yok" kaldırıldı
+- [x] Ekim/hasat butonları kaldırıldı, poda tıklayınca direkt ekim modalı
+
+## 11. Su/Enerji Seviye Sistemi
+- [x] 4 kademeli durum: İyi (%75+), Orta (%50+), Kötü (%25+), Kritik (%25 altı)
+- [x] Enerji durumuna göre büyüme çarpanı: ×1, ×1.25, ×1.5, ×2
+- [x] Eski `isEnergyCritical ? 0.2` kaldırıldı, yerine kademeli sistem
+- [x] Su/Enerji grid hücrelerinde: ilerleme çubuğu + "Kapasite: xxx" + durum göstergesi
+- [x] Ekim modalında "Ekim İhtiyacı" / "Saniyelik Büyüme İhtiyacı" ayrımı
+- [x] Ürün grid resimleri hücre boyutuna sığdırıldı, 💧 simgesi kaldırıldı
+- [x] Hasat butonu büyütüldü (w-full, py-3, pulse animasyonu, neon gölge)

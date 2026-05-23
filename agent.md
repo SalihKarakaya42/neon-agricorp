@@ -15,10 +15,11 @@
 - **UI**: Layout component (alt tab nav), glass-panel, neon tema
 - **Save**: localStorage (anlık) + Supabase (60sn aralıkla)
 - **Sync**: syncService.ts (optimistic + rollback) — harvest rollback kaldırıldı
+- **Büyüme**: Enerji seviyesine göre kademeli çarpan (iyi ×1, orta ×1.25, kötü ×1.5, kritik ×2)
 
 ## Önemli Dosyalar
 - `src/GameLoop.tsx` — Ana oyun döngüsü, state yönetimi, save/load
-- `src/FarmSystem.tsx` — Pod bazlı ekim/hasat + su/enerji grid hücreleri
+- `src/FarmSystem.tsx` — Pod bazlı ekim/hasat + su/enerji grid hücreleri + seviye sistemi
 - `src/FactorySystem.tsx` — Grid bazlı üretim zincirleri (6-col aktif, 2-col chain list)
 - `src/ResearchSystem.tsx` — Araştırma ağacı
 - `src/MarketSystem.tsx` — Pazar (talep dalgalanması)
@@ -35,3 +36,9 @@
 
 ## SQL
 - `player_data` tablosu: water, energy, credits, inventory, pump_power, base_energy_production, crop_growth_modifier, water_efficiency, max_water_capacity, max_energy_capacity, unlocked_t3_factories, unlocked_prestige, pod_capacity, tier4_unlocked, research_state, factory_jobs, last_saved
+
+## FarmSystem İç Yapı
+- `getLevelInfo(current, max, t)` → seviye hesaplama (iyi/orta/kötü/kritik + çarpan)
+- `availableCrops` içinde her ürün: waterRequired, energyRequired (tek seferlik) + waterPerSecond, baseEnergyDraw (sürekli)
+- Büyüme: `totalMod = cropGrowthModifier * (1 / energyLevel.multiplier) * radiation * fertilizer`
+- Pod'a tıklayınca ekim modalı, hazır ürün varsa "Hasat" butonu

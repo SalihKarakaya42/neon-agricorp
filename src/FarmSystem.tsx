@@ -31,6 +31,16 @@ interface FarmSystemProps {
   tier4Unlocked: number;
   waterPerSec: number;
   energyPerSec: number;
+  maxWater: number;
+  maxEnergy: number;
+}
+
+function getLevelInfo(current: number, max: number, t: (key: string) => string): { label: string; multiplier: number; color: string; icon: string } {
+  const pct = max > 0 ? current / max : 0;
+  if (pct >= 0.75) return { label: t('farm.statGood'), multiplier: 1, color: 'text-emerald-400', icon: '🟢' };
+  if (pct >= 0.50) return { label: t('farm.statMedium'), multiplier: 1.25, color: 'text-yellow-400', icon: '🟡' };
+  if (pct >= 0.25) return { label: t('farm.statBad'), multiplier: 1.5, color: 'text-orange-400', icon: '🟠' };
+  return { label: t('farm.statCritical'), multiplier: 2, color: 'text-red-400', icon: '🔴' };
 }
 
 const POD_COUNT = 4;
@@ -39,10 +49,12 @@ const POD_IDS = Array.from({ length: POD_COUNT }, (_, i) => `POD_${String(i + 1)
 const FarmSystem: React.FC<FarmSystemProps> = ({ 
     currentWater, currentEnergy, onWaterChange, onEnergyChange,
     onEnergyConsumptionReport, cropGrowthModifier, onWaterConsumptionReport,
-    isEnergyCritical, onBatchHarvest, radiationLevel, fertilizer, onFertilizerChange,
-    podCapacity, tier4Unlocked, waterPerSec, energyPerSec
+    onBatchHarvest, radiationLevel, fertilizer, onFertilizerChange,
+    podCapacity, tier4Unlocked, waterPerSec, energyPerSec, maxWater, maxEnergy
 }) => {
   const { t } = useLanguage();
+  const waterLevel = getLevelInfo(currentWater, maxWater, t);
+  const energyLevel = getLevelInfo(currentEnergy, maxEnergy, t);
   const [crops, setCrops] = useState<Crop[]>(() => {
     try {
       const saved = localStorage.getItem('neon_farm_crops');
@@ -150,7 +162,7 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
           if (crop.isHarvestable) return crop;
           const info = availableCrops.find(c => c.name === crop.name);
           const baseTime = info ? crop.baseGrowthTime : 30;
-          const totalMod = cropGrowthModifier * (isEnergyCritical ? 0.2 : 1.0) * (radiationLevel > 70 ? 0.5 : radiationLevel > 40 ? 0.8 : 1.2) * (fertilizer > 0 ? 1.3 : 1.0);
+          const totalMod = cropGrowthModifier * (1 / energyLevel.multiplier) * (radiationLevel > 70 ? 0.5 : radiationLevel > 40 ? 0.8 : 1.2) * (fertilizer > 0 ? 1.3 : 1.0);
           if ((now - crop.timePlanted) / 1000 >= baseTime / totalMod) {
             if (fertilizer > 0) onFertilizerChange(fertilizer - 1);
             return { ...crop, isHarvestable: true };
@@ -160,12 +172,12 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
       );
     }, 1000);
     return () => clearInterval(interval);
-  }, [cropGrowthModifier, isEnergyCritical, radiationLevel, fertilizer, onFertilizerChange]);
+  }, [cropGrowthModifier, energyLevel.multiplier, radiationLevel, fertilizer, onFertilizerChange]);
 
   const getGrowthPercent = (crop: Crop) => {
     const info = availableCrops.find(c => c.name === crop.name);
     const baseTime = info ? crop.baseGrowthTime : 30;
-    const totalMod = cropGrowthModifier * (isEnergyCritical ? 0.2 : 1.0) * (radiationLevel > 70 ? 0.5 : radiationLevel > 40 ? 0.8 : 1.2) * (fertilizer > 0 ? 1.3 : 1.0);
+    const totalMod = cropGrowthModifier * (1 / energyLevel.multiplier) * (radiationLevel > 70 ? 0.5 : radiationLevel > 40 ? 0.8 : 1.2) * (fertilizer > 0 ? 1.3 : 1.0);
     return Math.min(100, Math.round(((Date.now() - crop.timePlanted) / 1000 / (baseTime / totalMod)) * 100));
   };
 
@@ -174,7 +186,7 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
 
       <section className="grid grid-cols-2 gap-3">
         {/* Water Cell */}
-        <div className="rounded-lg p-3 flex flex-col gap-2 relative overflow-hidden min-h-[160px] shadow-[0_4px_20px_rgba(0,0,0,0.6)]">
+        <div className="rounded-lg p-3 flex flex-col gap-1 relative overflow-hidden min-h-[160px] shadow-[0_4px_20px_rgba(0,0,0,0.6)]">
           <img src="/images/backgrounds/su.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 bg-[#0e0e0f]/60" />
           <div className="absolute top-1.5 right-2 z-10">
@@ -182,18 +194,27 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
               {waterPerSec >= 0 ? '+' : ''}{waterPerSec.toFixed(1)}/s
             </span>
           </div>
-          <div className="relative z-10 flex flex-col gap-2 flex-1">
-            <div className="flex items-center gap-2">
+          <div className="relative z-10 flex flex-col gap-1 flex-1">
+            <div className="bg-black/30 -mx-3 -mt-3 px-3 py-1.5 border-b border-black/20 rounded-t-lg flex items-center gap-2">
               <Droplet className="w-5 h-5 text-blue-400" />
               <span className="font-mono text-[11px] text-white font-bold uppercase">Su</span>
             </div>
-            <div className="flex-1 flex items-center justify-center">
-              <span className="font-mono text-[28px] text-blue-300 font-bold drop-shadow-[0_0_10px_rgba(96,165,250,0.3)]">{Math.floor(currentWater)}</span>
+            <div className="flex-1 flex flex-col items-center justify-center">
+              <span className="font-mono text-[24px] text-blue-300 font-bold drop-shadow-[0_0_10px_rgba(96,165,250,0.3)]">{Math.floor(currentWater)}</span>
+            </div>
+            {/* Progress bar */}
+            <div className="w-full h-1.5 bg-black/50 rounded-full overflow-hidden">
+              <div className="h-full rounded-full transition-all duration-500" style={{ width: `${maxWater > 0 ? Math.min(100, (currentWater / maxWater) * 100) : 0}%`, backgroundColor: waterLevel.color === 'text-emerald-400' ? '#34d399' : waterLevel.color === 'text-yellow-400' ? '#facc15' : waterLevel.color === 'text-orange-400' ? '#fb923c' : '#f87171' }} />
+            </div>
+            {/* Bottom info */}
+            <div className="flex justify-between items-center">
+              <span className="font-mono text-[8px] text-[#849495]">Kapasite: {maxWater}</span>
+              <span className={`font-mono text-[8px] font-bold uppercase ${waterLevel.color}`}>{waterLevel.icon} {waterLevel.label}</span>
             </div>
           </div>
         </div>
         {/* Energy Cell */}
-        <div className="rounded-lg p-3 flex flex-col gap-2 relative overflow-hidden min-h-[160px] shadow-[0_4px_20px_rgba(0,0,0,0.6)]">
+        <div className="rounded-lg p-3 flex flex-col gap-1 relative overflow-hidden min-h-[160px] shadow-[0_4px_20px_rgba(0,0,0,0.6)]">
           <img src="/images/backgrounds/enerji.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 bg-[#0e0e0f]/60" />
           <div className="absolute top-1.5 right-2 z-10">
@@ -201,13 +222,22 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
               {energyPerSec >= 0 ? '+' : ''}{energyPerSec.toFixed(1)}/s
             </span>
           </div>
-          <div className="relative z-10 flex flex-col gap-2 flex-1">
-            <div className="flex items-center gap-2">
+          <div className="relative z-10 flex flex-col gap-1 flex-1">
+            <div className="bg-black/30 -mx-3 -mt-3 px-3 py-1.5 border-b border-black/20 rounded-t-lg flex items-center gap-2">
               <Zap className="w-5 h-5 text-yellow-500" />
               <span className="font-mono text-[11px] text-white font-bold uppercase">Enerji</span>
             </div>
-            <div className="flex-1 flex items-center justify-center">
-              <span className={`font-mono text-[28px] font-bold drop-shadow-[0_0_10px_rgba(234,179,8,0.3)] ${isEnergyCritical ? 'text-red-400' : 'text-yellow-400'}`}>{Math.floor(currentEnergy)}</span>
+            <div className="flex-1 flex flex-col items-center justify-center">
+              <span className="font-mono text-[24px] font-bold drop-shadow-[0_0_10px_rgba(234,179,8,0.3)] text-yellow-400">{Math.floor(currentEnergy)}</span>
+            </div>
+            {/* Progress bar */}
+            <div className="w-full h-1.5 bg-black/50 rounded-full overflow-hidden">
+              <div className="h-full rounded-full transition-all duration-500" style={{ width: `${maxEnergy > 0 ? Math.min(100, (currentEnergy / maxEnergy) * 100) : 0}%`, backgroundColor: energyLevel.color === 'text-emerald-400' ? '#34d399' : energyLevel.color === 'text-yellow-400' ? '#facc15' : energyLevel.color === 'text-orange-400' ? '#fb923c' : '#f87171' }} />
+            </div>
+            {/* Bottom info */}
+            <div className="flex justify-between items-center">
+              <span className="font-mono text-[8px] text-[#849495]">Kapasite: {maxEnergy}</span>
+              <span className={`font-mono text-[8px] font-bold uppercase ${energyLevel.color}`}>{energyLevel.icon} {energyLevel.label}</span>
             </div>
           </div>
         </div>
@@ -215,7 +245,6 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
         {POD_IDS.map(podId => {
           const podCrops = cropsInPod[podId] || [];
           const used = podCrops.length;
-          const remaining = podCapacity - used;
           const singleType = podCropType(podId);
           const cropInfo = singleType ? findCropInfo(singleType) : null;
 
@@ -229,13 +258,19 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
             ? Math.min(...growing.map(c => {
                 const info = findCropInfo(c.name);
                 const base = info ? c.baseGrowthTime : 30;
-                const mod = cropGrowthModifier * (isEnergyCritical ? 0.2 : 1.0) * (radiationLevel > 70 ? 0.5 : radiationLevel > 40 ? 0.8 : 1.2) * (fertilizer > 0 ? 1.3 : 1.0);
+                const mod = cropGrowthModifier * (1 / energyLevel.multiplier) * (radiationLevel > 70 ? 0.5 : radiationLevel > 40 ? 0.8 : 1.2) * (fertilizer > 0 ? 1.3 : 1.0);
                 return Math.max(0, Math.ceil(base / mod - (Date.now() - c.timePlanted) / 1000));
               }))
             : 0;
 
           return (
-            <div key={podId} className="glass-panel rounded-lg p-3 flex flex-col gap-2 relative overflow-hidden min-h-[200px] shadow-[0_4px_20px_rgba(0,0,0,0.6)]">
+            <div key={podId} onClick={() => {
+                  const initialCrop = singleType
+                    ? availableCrops.find(c => c.name === singleType) ?? availableCrops[0]
+                    : availableCrops[0];
+                  setPlantModal({ podId }); setPlantQty(1); setHoveredCrop(initialCrop);
+                }}
+                className="glass-panel rounded-lg p-3 flex flex-col gap-2 relative overflow-hidden min-h-[200px] shadow-[0_4px_20px_rgba(0,0,0,0.6)] cursor-pointer active:scale-[0.98] transition-all">
               {/* Arkaplan resmi */}
               <img src="/images/backgrounds/tarım.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-[#0e0e0f]/40" />
@@ -260,30 +295,33 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
               <div className="scanline-overlay z-0" />
 
               {/* Header */}
-              <div className="flex justify-between items-center z-10">
-                <span className="font-mono text-[10px] text-[#849495] font-semibold">{podId}</span>
-                <span className="font-mono text-[9px] text-[#00f3ff] font-bold">{used}/{podCapacity}</span>
+              <div className="bg-black/30 -mx-3 -mt-3 px-3 py-1.5 border-b border-black/20 rounded-t-lg flex justify-between items-center z-10">
+                <span className="font-mono text-[11px] text-white font-bold uppercase">{podId}</span>
+                <span className="font-mono text-[11px] text-[#00f3ff] font-bold">{used}/{podCapacity}</span>
               </div>
 
               {/* Center countdown when growing */}
               {podCrops.length > 0 && (
                 <div className="flex-1 flex flex-col items-center justify-center z-10 py-2">
                   {readyCount === podCrops.length ? (
-                    <span className="font-mono text-[11px] text-green-400 font-bold uppercase tracking-wider">Hazır</span>
+                    <button onClick={(e) => {
+                      e.stopPropagation();
+                      const outputs = readyCrops.map(c => {
+                        const info = findCropInfo(c.name);
+                        return info?.outputResource || 'Raw Lettuce';
+                      });
+                      onBatchHarvest(outputs);
+                      setCrops(prev => prev.filter(c => !(c.isHarvestable && c.podId === podId)));
+                    }}
+                      className="w-full py-3 font-mono text-[13px] text-green-300 font-bold uppercase tracking-wider cursor-pointer hover:text-white active:scale-95 transition-all z-10 bg-green-600/20 rounded-lg border border-green-500/40 shadow-[0_0_20px_rgba(74,222,128,0.25)] hover:bg-green-600/30 hover:shadow-[0_0_30px_rgba(74,222,128,0.4)] animate-pulse">
+                      HASAT
+                    </button>
                   ) : minRemaining > 0 ? (
                     <>
                       <span className="font-mono text-[28px] text-white font-bold drop-shadow-[0_0_12px_rgba(0,243,255,0.5)]">{minRemaining}</span>
                       <span className="font-mono text-[8px] text-[#849495] uppercase tracking-widest">saniye</span>
                     </>
                   ) : null}
-                </div>
-              )}
-
-              {/* Empty state */}
-              {podCrops.length === 0 && (
-                <div className="flex-1 flex flex-col items-center justify-center py-4 select-none z-10">
-                  <span className="text-[24px] text-[#3a494b]">⬜</span>
-                  <p className="font-mono text-[9px] text-[#849495] uppercase tracking-widest mt-1">{t('farm.noCrops')}</p>
                 </div>
               )}
 
@@ -308,34 +346,6 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
                     );
                   })()}
                 </div>
-              )}
-
-              {/* Toplu hasat button */}
-              {readyCount >= 1 && (
-                <button onClick={() => {
-                  const outputs = readyCrops.map(c => {
-                    const info = findCropInfo(c.name);
-                    return info?.outputResource || 'Raw Lettuce';
-                  });
-                  onBatchHarvest(outputs);
-                  setCrops(prev => prev.filter(c => !(c.isHarvestable && c.podId === podId)));
-                }}
-                  className="w-full py-1.5 bg-emerald-600 text-white font-mono text-[9px] font-bold uppercase rounded shadow-[0_0_10px_rgba(16,185,129,0.3)] cursor-pointer active:scale-95 transition-all z-10">
-                  TOPLU HASAT ({readyCount})
-                </button>
-              )}
-
-              {/* Ekim button */}
-              {remaining > 0 && (
-                <button onClick={() => {
-                  const initialCrop = singleType
-                    ? availableCrops.find(c => c.name === singleType) ?? availableCrops[0]
-                    : availableCrops[0];
-                  setPlantModal({ podId }); setPlantQty(1); setHoveredCrop(initialCrop);
-                }}
-                  className="w-full py-1.5 border border-[#00f3ff]/60 text-[#00f3ff] hover:bg-[#00f3ff]/10 font-mono text-[9px] uppercase rounded transition-all cursor-pointer text-center block z-10 active:scale-95">
-                  {singleType ? `${tcrop(singleType)} +` : t('farm.plant')} (+{remaining})
-                </button>
               )}
             </div>
           );
@@ -390,11 +400,10 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
                         const canAfford = currentWater >= totalWater && currentEnergy >= totalEnergy;
                         return (
                           <button key={crop.id} onClick={() => setHoveredCrop(crop)}
-                            className={`aspect-square p-1 rounded-lg flex flex-col items-center justify-center gap-1 border transition-all ${
-                              hoveredCrop?.id === crop.id ? 'bg-[#00f3ff]/15 border-[#00f3ff]' : 'bg-neutral-900 border-white/5'
+                            className={`aspect-square rounded-lg overflow-hidden border transition-all ${
+                              hoveredCrop?.id === crop.id ? 'ring-1 ring-[#00f3ff] border-[#00f3ff]' : 'border-white/5'
                             } ${!canAfford ? 'opacity-50' : ''}`}>
-                            <img src={crop.image} alt="" className="w-8 h-8 object-cover rounded" />
-                            <span className="text-[7px] font-mono text-[#b9cacb]">{crop.waterRequired*plantQty}💧</span>
+                            <img src={crop.image} alt="" className="w-full h-full object-cover" />
                           </button>
                         );
                       })}
@@ -408,9 +417,19 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
                       <img src={hoveredCrop.image} alt="" className="w-10 h-10 rounded-lg object-cover" />
                       <h4 className="text-sm font-bold text-white">{tcrop(hoveredCrop.name)}</h4>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 mt-2 text-[10px] font-mono text-[#849495]">
-                      <span>Su: <strong className="text-white">{hoveredCrop.waterRequired * plantQty}</strong></span>
-                      <span>Enerji: <strong className="text-white">{hoveredCrop.energyRequired * plantQty}</strong></span>
+                    <div className="grid grid-cols-2 gap-2 mt-2 text-[10px] font-mono">
+                      <div className="bg-[#0e0e0f]/60 rounded p-2">
+                        <div className="text-[#b9cacb] uppercase tracking-wider mb-1">Ekim İhtiyacı</div>
+                        <div>💧 Su: <strong className="text-blue-300">{hoveredCrop.waterRequired * plantQty}</strong></div>
+                        <div>⚡ Enerji: <strong className="text-yellow-400">{hoveredCrop.energyRequired * plantQty}</strong></div>
+                      </div>
+                      <div className="bg-[#0e0e0f]/60 rounded p-2">
+                        <div className="text-[#b9cacb] uppercase tracking-wider mb-1">Saniyelik Büyüme İhtiyacı</div>
+                        <div>💧 Su: <strong className="text-blue-300">{(hoveredCrop.waterPerSecond * plantQty).toFixed(1)}/s</strong></div>
+                        <div>⚡ Enerji: <strong className="text-yellow-400">{(hoveredCrop.baseEnergyDraw * plantQty).toFixed(1)}/s</strong></div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-[#849495]">
                       <span>Süre: <strong className="text-white">{hoveredCrop.baseGrowthTime}s</strong></span>
                       <span>Çıktı: <strong className="text-white">{tcrop(hoveredCrop.outputResource)}</strong></span>
                     </div>

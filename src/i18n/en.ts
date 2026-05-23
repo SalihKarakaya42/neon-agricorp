@@ -56,6 +56,10 @@ const en: Translations = {
     growing: 'Growing...',
     radiation: 'Radiation',
     fertilizer: 'Fertilizer',
+    statGood: 'Good',
+    statMedium: 'Medium',
+    statBad: 'Bad',
+    statCritical: 'Critical',
   },
   factory: {
     title: 'Industrial Processing',

@@ -56,6 +56,10 @@ const tr: Translations = {
     growing: 'Büyüyor...',
     radiation: 'Radyasyon',
     fertilizer: 'Gübre',
+    statGood: 'İyi',
+    statMedium: 'Orta',
+    statBad: 'Kötü',
+    statCritical: 'Kritik',
   },
   factory: {
     title: 'Endüstriyel İşleme',

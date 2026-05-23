@@ -54,6 +54,10 @@ export interface Translations {
     growing: string;
     radiation: string;
     fertilizer: string;
+    statGood: string;
+    statMedium: string;
+    statBad: string;
+    statCritical: string;
   };
   factory: {
     title: string;

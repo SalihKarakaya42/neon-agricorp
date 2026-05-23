@@ -17,6 +17,10 @@ export interface Translations {
     register: string;
     email: string;
     password: string;
+    confirmPassword: string;
+    passwordMismatch: string;
+    username: string;
+    chooseAvatar: string;
     pleaseWait: string;
     noAccount: string;
     hasAccount: string;

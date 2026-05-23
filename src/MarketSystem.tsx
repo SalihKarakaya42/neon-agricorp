@@ -5,6 +5,8 @@ import { Coins, TrendingUp, TrendingDown } from 'lucide-react';
 const BASE_PRICES: Record<string, number> = {
   'Raw Lettuce': 8, 'Raw Starch': 10, 'Raw Flour Base': 12, 'Raw Paste': 20, 'Glow Berry Batch': 80,
   'Flour Pack': 30, 'Potato Starch': 25, 'Nutrient Dough': 50, 'Cyber Pizza': 100, 'Refined Gel': 60, 'Quantum Core': 400, 'Crystalized Nutrient': 200,
+  'Lumina Extract': 150, 'Nano Spores': 200, 'Void Essence': 300,
+  'Quantum Serum': 500, 'Nano Coating': 600, 'Void Crystal': 1000,
 };
 
 const RESOURCE_IMAGES: Record<string, string> = {
@@ -13,6 +15,9 @@ const RESOURCE_IMAGES: Record<string, string> = {
   'Raw Flour Base': '/images/synthetic-wheat.png',
   'Raw Paste': '/images/neon-tomato.png',
   'Glow Berry Batch': '/images/glow-berry.png',
+  'Lumina Extract': '/images/bio-lumina-fruit.svg',
+  'Nano Spores': '/images/nano-orchid.svg',
+  'Void Essence': '/images/void-melon.svg',
 };
 
 interface MarketSystemProps { inventory: Record<string, number>; onSell: (resource: string, amount: number, totalPrice: number) => void; }

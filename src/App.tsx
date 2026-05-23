@@ -5,10 +5,14 @@ import { Session } from '@supabase/supabase-js';
 import AuthScreen from './AuthScreen';
 import { useLanguage } from './i18n';
 
+const PROFILE_KEY = 'neon_profile';
+
 function App() {
   const { t } = useLanguage();
   const [session, setSession] = useState<Session | null>(null);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const [username, setUsername] = useState('');
+  const [avatarId, setAvatarId] = useState('1');
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -19,6 +23,16 @@ function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setIsCheckingSession(false);
+      if (session) {
+        const savedProfile = localStorage.getItem(PROFILE_KEY);
+        if (savedProfile) {
+          const p = JSON.parse(savedProfile);
+          setUsername(p.username);
+          setAvatarId(p.avatarId);
+        } else {
+          setUsername(session.user.email?.split('@')[0] || 'Operator');
+        }
+      }
     });
 
     return () => {
@@ -40,9 +54,11 @@ function App() {
   return (
     <>
       {session ? (
-        <GameLoop userId={session.user.id} />
+        <GameLoop userId={session.user.id} username={username} avatarId={avatarId} />
       ) : (
-        <AuthScreen onAuth={() => {
+        <AuthScreen onAuth={(u, a) => {
+          setUsername(u);
+          setAvatarId(a);
           supabase.auth.getSession().then(({ data: { session } }) => {
             setSession(session);
             setIsCheckingSession(false);

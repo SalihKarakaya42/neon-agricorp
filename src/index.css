@@ -143,3 +143,45 @@ body {
   25% { text-shadow: 0 0 3px #ff00ff, 0 0 10px #ff00ff, 0 0 20px #ff00ff; }
   30% { text-shadow: none; }
 }
+
+@keyframes rotate-glow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.neon-glow-wrapper {
+  position: relative;
+  border-radius: 0.75rem;
+}
+
+.neon-glow-wrapper img {
+  border-radius: 0.75rem;
+}
+
+.neon-glow-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 0.75rem;
+  pointer-events: none;
+  z-index: 3;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(0,243,255,0.25) 20deg, transparent 40deg, transparent 140deg, rgba(0,243,255,0.3) 160deg, transparent 180deg, transparent 280deg, rgba(0,243,255,0.2) 300deg, transparent 340deg);
+  animation: rotate-glow 5s linear infinite;
+  mix-blend-mode: overlay;
+}
+
+.neon-glow-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: calc(0.75rem + 4px);
+  background: conic-gradient(from 0deg, transparent, #00f3ff, transparent, #00f3ff, transparent);
+  animation: rotate-glow 3s linear infinite;
+  z-index: 0;
+  opacity: 0.8;
+  filter: blur(6px);
+}
+
+.neon-glow-wrapper > * {
+  position: relative;
+  z-index: 1;
+}

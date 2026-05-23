@@ -22,13 +22,14 @@ const initialResearchDefinitions: ResearchTechDefinition[] = [
   { id: 'district-1', name: 'Geothermal Tapping', category: 'Energy', baseCost: 3500, unlocks: { stat: 'baseEnergyProduction', value: 10 } },
   { id: 'agri-2', name: 'Laboratory Systems', category: 'Agriculture', baseCost: 4000, unlocks: { stat: 'tier3CropUnlock', value: 1 } },
   { id: 'agri-3', name: 'Genişletilmiş Sektörler I', category: 'Agriculture', baseCost: 6000, unlocks: { stat: 'podCapacity', value: 4 } },
+  { id: 'agri-4', name: 'Genetic Engineering', category: 'Agriculture', baseCost: 20000, unlocks: { stat: 'tier4CropUnlock', value: 1 } },
   { id: 'district-2', name: 'Excavation Protocol I', category: 'District', baseCost: 5000, unlocks: { stat: 'unlockedT3Factories', value: 1 } },
   { id: 'prestige-1', name: 'Civilization Blueprint', category: 'District', baseCost: 15000, unlocks: { stat: 'unlockedPrestige', value: 1 } },
 ];
 
 const renderTechIcon = (techId: string, className: string) => {
   switch(techId) {
-    case 'agri-1': case 'agri-2': case 'agri-3': return <Sprout className={className} />;
+    case 'agri-1': case 'agri-2': case 'agri-3': case 'agri-4': return <Sprout className={className} />;
     case 'water-1': return <Waves className={className} />;
     case 'energy-1': return <Zap className={className} />;
     case 'water-2': return <Droplets className={className} />;

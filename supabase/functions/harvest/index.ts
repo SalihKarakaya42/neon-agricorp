@@ -3,13 +3,13 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 interface HarvestRequest {
   userId: string;
-  outputResource: string;
+  outputResources: string[];
 }
 
 serve(async (req: Request) => {
-  const { userId, outputResource }: HarvestRequest = await req.json()
+  const { userId, outputResources }: HarvestRequest = await req.json()
 
-  if (!userId || !outputResource) {
+  if (!userId || !outputResources || !Array.isArray(outputResources) || outputResources.length === 0) {
     return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 })
   }
 
@@ -18,7 +18,6 @@ serve(async (req: Request) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   )
 
-  // Get current inventory
   const { data: player, error: fetchError } = await supabase
     .from('player_data')
     .select('inventory')
@@ -29,11 +28,13 @@ serve(async (req: Request) => {
     return new Response(JSON.stringify({ error: 'Player not found' }), { status: 404 })
   }
 
-  // Update inventory
   const inventory = typeof player.inventory === 'object' && player.inventory !== null
-    ? { ...player.inventory }
+    ? { ...player.inventory as Record<string, number> }
     : {}
-  inventory[outputResource] = (inventory[outputResource] || 0) + 1
+
+  for (const resource of outputResources) {
+    inventory[resource] = (inventory[resource] || 0) + 1
+  }
 
   const { error: updateError } = await supabase
     .from('player_data')

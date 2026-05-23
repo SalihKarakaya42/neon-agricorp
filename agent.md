@@ -1,51 +1,36 @@
-# 🤖 AGENT DEVELOPMENT TRACKER - NEON AGRICORP
+# NEON AGRICORP — Agent Takip
 
-## 1. Temel Sistemler (TAMAMLANDI)
-- [x] Proje Kurulumu (Vite, React, TS, Supabase JS)
-- [x] Kaynak Yönetimi (Su, Enerji) ve Tüketim Simülasyonu
-- [x] Üretim Zincirleri (Tier 1-3)
-- [x] Araştırma Sistemi (Stat artışları)
-- [x] Prestige Sistemi (Reset + kalıcı bonus)
-- [x] Dark Cyberpunk Neon Tema
-
-## 2. UI Redesign + Pod Sistemi (TAMAMLANDI)
-- [x] Tailwind CSS v4, lucide-react, motion kurulumu
-- [x] Eski CSS dosyaları tamamen kaldırıldı
-- [x] `index.css` → Tailwind + glass-panel, hologram-card, scanline
-- [x] `Particles.tsx`, `ResourceDisplay.tsx`, `WaterDistributionSystem.tsx` silindi
-- [x] Pod sistemi: 4 pod, multi-plant, tek tip ürün zorunluluğu
-- [x] Görsel büyüme animasyonu (clipPath soldan sağa açılma)
-- [x] Gruplanmış bitki listesi ("4 adet Neon Tomato"), progress bar yok
-- [x] TOPLU HASAT (1+ hazır bitki)
-- [x] 5 ürün resmi indirildi (`public/images/`)
-- [x] Market: slider ile adet seçimi + ürün resimleri
-- [x] Su limiti (`maxWaterCapacity`, başlangıç 500)
-- [x] Enerji yüzde gösterimi düzeltmesi
-- [x] localStorage yedek (tüm state)
-- [x] Supabase timestamp karşılaştırması
-- [x] Header: LVL popup, Depo popup, saatlik rate, radyasyon
-
-## 3. Backend / Sunucu (TAMAMLANDI)
-- [x] Edge Functions: harvest, start-factory, contract-validate (deployed)
-- [x] Client-Server State Sync (syncService.ts - optimistic + rollback)
-- [x] SQL sütunları: `max_water_capacity`, `pod_capacity` eklendi
-
-## 4. MegaCorp Contracts (TAMAMLANDI - temel)
-- [x] ContractSystem bileşeni
-- [x] 3 kademe, 9 sözleşme
-- [x] Süre sınırı, teslimat doğrulama
-- [x] Edge Function entegrasyonu
-- [x] localStorage save/load
-- [x] Bildirim toast
-
-## 5. Yapılacaklar
-- [ ] **MegaCorp Contracts genişletme: 10 kademe, 100 sözleşme**
-- [ ] Tier 4 ekinler (Quantum Fungus, Void Melon)
-- [ ] Dil değiştirme UI'ı (ayar menüsü)
-
-## ⚙️ Çalışma Durumu
+## Çalışma Durumu
 - Dev server: `npx vite --host` → `http://localhost:5173/`
 - TypeScript: `npx tsc --noEmit` = 0 hata
-- Supabase: `olbbyqyrgkgwrodjbeka.supabase.co`
-- localStorage + Supabase çift yedekli save
-- Edge Functions: harvest, start-factory, contract-validate (deployed)
+- Build: `npx vite build` (chunk size uyarısı harici sorunsuz)
+- Supabase: olbbyqyrgkgwrodjbeka.supabase.co
+- Client-Server: localStorage + Supabase çift yedekli save (60sn aralıkla)
+- Edge Functions: harvest (batch), start-factory, contract-validate (güncel kod deploy edilmedi)
+
+## Mimari Notlar
+- **Dil**: React + TypeScript + Vite
+- **Stil**: Tailwind CSS v4, lucide-react, motion (framer-motion)
+- **Backend**: Supabase Auth + Database + Edge Functions
+- **UI**: Layout component (alt tab nav), glass-panel, neon tema
+- **Save**: localStorage (anlık) + Supabase (60sn aralıkla)
+- **Sync**: syncService.ts (optimistic + rollback) — harvest rollback kaldırıldı
+
+## Önemli Dosyalar
+- `src/GameLoop.tsx` — Ana oyun döngüsü, state yönetimi, save/load
+- `src/FarmSystem.tsx` — Pod bazlı ekim/hasat (batch harvest)
+- `src/FactorySystem.tsx` — Grid bazlı üretim zincirleri (yeni)
+- `src/ResearchSystem.tsx` — Araştırma ağacı
+- `src/MarketSystem.tsx` — Pazar (talep dalgalanması)
+- `src/ContractSystem.tsx` — MegaCorp sözleşmeleri
+- `src/AuthScreen.tsx` — Giriş/Kayıt + avatar seçimi
+- `src/Layout.tsx` — Alt tab navigasyonlu iskelet
+- `src/syncService.ts` — Edge function çağrıları
+- `src/i18n/` — Çoklu dil sistemi (tr, en)
+- `src/index.css` — Tailwind + neon-glow-wrapper, hologram-card, scanline
+- `sql/factory_jobs_migration.sql` — Factory jobs sütunu
+- `public/images/factory/` — 10 adet fabrika ürün SVG'si
+- `public/images/avatars/` — 20 adet profil avatarı
+
+## SQL
+- `player_data` tablosu: water, energy, credits, inventory, pump_power, base_energy_production, crop_growth_modifier, water_efficiency, max_water_capacity, max_energy_capacity, unlocked_t3_factories, unlocked_prestige, pod_capacity, tier4_unlocked, research_state, factory_jobs, last_saved

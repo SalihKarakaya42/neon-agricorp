@@ -4,6 +4,7 @@
 -- Mevcut tabloya eksik sütunları ekle (tablo varsa)
 ALTER TABLE public.player_data ADD COLUMN IF NOT EXISTS pod_capacity numeric DEFAULT 4;
 ALTER TABLE public.player_data ADD COLUMN IF NOT EXISTS max_water_capacity numeric DEFAULT 500;
+ALTER TABLE public.player_data ADD COLUMN IF NOT EXISTS tier4_unlocked numeric DEFAULT 0;
 
 -- Drop and recreate the player_data table (SADECE sıfırdan kuruyorsan)
 -- DROP TABLE IF EXISTS public.player_data CASCADE;
@@ -30,18 +31,19 @@ ALTER TABLE public.player_data ADD COLUMN IF NOT EXISTS max_water_capacity numer
 -- Enable Row Level Security
 ALTER TABLE public.player_data ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies (mevcutsa hata vermez)
-CREATE POLICY IF NOT EXISTS "Users can view their own data."
-ON public.player_data FOR SELECT
-USING (auth.uid() = id);
-
-CREATE POLICY IF NOT EXISTS "Users can create their own profile."
-ON public.player_data FOR INSERT
-WITH CHECK (auth.uid() = id);
-
-CREATE POLICY IF NOT EXISTS "Users can update own data."
-ON public.player_data FOR UPDATE
-USING (auth.uid() = id);
+-- RLS Policies (güvenli oluşturma)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'player_data' AND policyname = 'Users can view their own data.') THEN
+    CREATE POLICY "Users can view their own data." ON public.player_data FOR SELECT USING (auth.uid() = id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'player_data' AND policyname = 'Users can create their own profile.') THEN
+    CREATE POLICY "Users can create their own profile." ON public.player_data FOR INSERT WITH CHECK (auth.uid() = id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'player_data' AND policyname = 'Users can update own data.') THEN
+    CREATE POLICY "Users can update own data." ON public.player_data FOR UPDATE USING (auth.uid() = id);
+  END IF;
+END $$;
 
 -- Grant access to authenticated users
 GRANT ALL ON public.player_data TO authenticated;

@@ -23,18 +23,20 @@ interface ResearchState {
 
 interface GameLoopProps {
     userId: string;
+    username: string;
+    avatarId: string;
 }
 
 interface LocalSave {
   water: number; energy: number; credits: number; inventory: Record<string, number>;
   pumpPower: number; baseEnergyProduction: number; cropGrowthModifier: number; waterEfficiency: number;
   maxWaterCapacity: number; maxEnergyCapacity: number;
-  unlockedT3Factories: number; unlockedPrestige: number;
+  unlockedT3Factories: number; tier4Unlocked: number; unlockedPrestige: number;
   podCapacity: number; researchState: ResearchState; contractState: ContractState; exp: number; level: number; fertilizer: number; radiationLevel: number;
   savedAt: string;
 }
 
-const GameLoop: React.FC<GameLoopProps> = ({ userId }) => {
+const GameLoop: React.FC<GameLoopProps> = ({ userId, username, avatarId }) => {
   const { t } = useLanguage();
   const INITIAL_WATER = 100;
   const INITIAL_ENERGY = 100;
@@ -59,7 +61,7 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId }) => {
         water, energy, credits, inventory,
         pumpPower, baseEnergyProduction, cropGrowthModifier, waterEfficiency,
         maxWaterCapacity, maxEnergyCapacity,
-        unlockedT3Factories, unlockedPrestige,
+        unlockedT3Factories, tier4Unlocked, unlockedPrestige,
         podCapacity, researchState, contractState, exp, level, fertilizer, radiationLevel,
         savedAt: new Date().toISOString(),
       } as LocalSave));
@@ -80,6 +82,7 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId }) => {
   const [maxWaterCapacity, setMaxWaterCapacity] = useState(saved?.maxWaterCapacity ?? INITIAL_WATER_CAPACITY);
   const [maxEnergyCapacity, setMaxEnergyCapacity] = useState(saved?.maxEnergyCapacity ?? INITIAL_CAPACITY);
   const [unlockedT3Factories, setUnlockedT3Factories] = useState(saved?.unlockedT3Factories ?? 0);
+  const [tier4Unlocked, setTier4Unlocked] = useState(saved?.tier4Unlocked ?? 0);
   const [unlockedPrestige, setUnlockedPrestige] = useState(saved?.unlockedPrestige ?? 0);
   const [_prestigeBonusMultiplier, setPrestigeBonusMultiplier] = useState(1.0);
   const [radiationLevel, setRadiationLevel] = useState(saved?.radiationLevel ?? 20);
@@ -118,14 +121,16 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId }) => {
   const gainExp = (amount: number) => {
     let currentExp = expRef.current;
     let currentLevel = levelRef.current;
-    currentExp += amount;
+    currentExp = Math.max(0, currentExp + amount);
     const maxLevel = 500;
     while (currentLevel < maxLevel && currentExp >= expForLevel(currentLevel)) {
       currentExp -= expForLevel(currentLevel);
       currentLevel += 1;
     }
-    if (currentLevel !== levelRef.current) setLevel(currentLevel);
-    if (currentExp !== expRef.current) setExp(currentExp);
+    expRef.current = currentExp;
+    levelRef.current = currentLevel;
+    if (currentLevel !== level) setLevel(currentLevel);
+    if (currentExp !== exp) setExp(currentExp);
   };
 
   const [farmEnergyDraw, setFarmEnergyDraw] = useState(0);
@@ -136,6 +141,11 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId }) => {
   
   const saveGameState = async () => {
     if (!userId) return;
+    let factoryJobs = [];
+    try {
+      const saved = localStorage.getItem('neon_factory_jobs');
+      if (saved) factoryJobs = JSON.parse(saved);
+    } catch (e) {}
     const { error } = await supabase
       .from('player_data')
       .upsert([
@@ -151,7 +161,9 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId }) => {
           unlocked_t3_factories: unlockedT3Factories,
           unlocked_prestige: unlockedPrestige,
           pod_capacity: podCapacity,
+          tier4_unlocked: tier4Unlocked,
           research_state: researchState,
+          factory_jobs: factoryJobs,
           last_saved: new Date().toISOString() 
         },
       ]);
@@ -162,7 +174,7 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId }) => {
     if (!userId) return;
     const { data, error } = await supabase
       .from('player_data')
-      .select('water, energy, credits, inventory, pump_power, base_energy_production, crop_growth_modifier, water_efficiency, max_water_capacity, max_energy_capacity, unlocked_t3_factories, unlocked_prestige, research_state, pod_capacity, last_saved')
+      .select('water, energy, credits, inventory, pump_power, base_energy_production, crop_growth_modifier, water_efficiency, max_water_capacity, max_energy_capacity, unlocked_t3_factories, unlocked_prestige, research_state, pod_capacity, tier4_unlocked, factory_jobs, last_saved')
       .eq('id', userId)
       .single();
     if (error) console.error('Error loading game state:', error);
@@ -185,6 +197,11 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId }) => {
       setUnlockedT3Factories(data.unlocked_t3_factories || 0);
       setUnlockedPrestige(data.unlocked_prestige || 0);
       setPodCapacity(data.pod_capacity || 4);
+      setTier4Unlocked((data as any).tier4_unlocked || 0);
+
+      if ((data as any).factory_jobs) {
+        localStorage.setItem('neon_factory_jobs', JSON.stringify((data as any).factory_jobs));
+      }
       
       if (data.research_state) {
         try {
@@ -208,7 +225,7 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId }) => {
   // Save to localStorage on every state change
   useEffect(() => {
     saveToStorage();
-  }, [water, energy, credits, inventory, pumpPower, baseEnergyProduction, cropGrowthModifier, waterEfficiency, maxWaterCapacity, maxEnergyCapacity, unlockedT3Factories, unlockedPrestige, podCapacity, researchState, contractState, exp, level, fertilizer, radiationLevel]);
+  }, [water, energy, credits, inventory, pumpPower, baseEnergyProduction, cropGrowthModifier, waterEfficiency, maxWaterCapacity, maxEnergyCapacity, unlockedT3Factories, tier4Unlocked, unlockedPrestige, podCapacity, researchState, contractState, exp, level, fertilizer, radiationLevel]);
 
   // Save to Supabase every 60s
   useEffect(() => {
@@ -217,7 +234,7 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId }) => {
       clearInterval(saveInterval);
       saveGameState();
     };
-  }, [water, energy, credits, inventory, pumpPower, baseEnergyProduction, cropGrowthModifier, waterEfficiency, maxWaterCapacity, maxEnergyCapacity, unlockedT3Factories, unlockedPrestige, researchState, userId]);
+  }, [water, energy, credits, inventory, pumpPower, baseEnergyProduction, cropGrowthModifier, waterEfficiency, maxWaterCapacity, maxEnergyCapacity, unlockedT3Factories, tier4Unlocked, unlockedPrestige, researchState, userId]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -267,6 +284,9 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId }) => {
         break;
       case 'maxWaterCapacity':
         setMaxWaterCapacity(prev => prev + boostValue);
+        break;
+      case 'tier4CropUnlock':
+        setTier4Unlocked(prev => prev + boostValue);
         break;
       default:
         console.warn(`Unknown stat boost: ${statName}`);
@@ -320,22 +340,19 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId }) => {
       handleStatBoost(statName, boostValue);
   };
 
-  const handleHarvestRequest = async (_cropId: string, outputResource: string) => {
-    const prevInventory = inventory;
-    syncWithFallback('harvest', { userId, outputResource },
-      // Optimistic update
-      () => {
-        setInventory(prev => ({
-          ...prev,
-          [outputResource]: (prev[outputResource] || 0) + 1,
-        }));
-        gainExp(10);
-      },
-      // Rollback on failure
-      () => {
-        setInventory(prevInventory);
-        gainExp(-10);
-      }
+  const handleBatchHarvest = (outputResources: string[]) => {
+    const count = outputResources.length;
+
+    setInventory(prev => {
+      const next = { ...prev };
+      outputResources.forEach(r => { next[r] = (next[r] || 0) + 1; });
+      return next;
+    });
+    gainExp(10 * count);
+
+    syncWithFallback('harvest', { userId, outputResources },
+      () => {},
+      () => { console.warn('Harvest server sync failed, local state kept.'); }
     );
   };
   
@@ -376,13 +393,16 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId }) => {
 
   const topBar = (
     <header className="fixed top-0 left-0 w-full z-40 bg-[#0e0e0f]/95 backdrop-blur-xl border-b border-[#3a494b]/20 shadow-[0_4px_30px_rgba(0,0,0,0.8)] flex flex-col transition-all">
-      {/* Row 1: Status + Level */}
+      {/* Row 1: Profile + Level */}
       <div className="flex justify-between items-center px-4 h-10 border-b border-[#3a494b]/10">
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#00f3ff] animate-pulse shadow-[0_0_6px_#00f3ff]" />
-          <span className="font-mono text-[9px] text-[#00f3ff] uppercase tracking-[0.15em] font-semibold">
-            ANA SİSTEM
+          <div className="w-6 h-6 rounded-full overflow-hidden border border-[#00f3ff]/50 shadow-[0_0_6px_rgba(0,243,255,0.2)] flex-shrink-0">
+            <img src={`/images/avatars/avatar-${avatarId}.svg`} alt="" className="w-full h-full object-cover" />
+          </div>
+          <span className="font-mono text-[10px] text-white font-bold tracking-wider max-w-[80px] truncate">
+            {username}
           </span>
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.5)]" />
         </div>
 
         <button ref={lvlBtnRef} onClick={() => setShowExpPopup(prev => !prev)}
@@ -466,6 +486,9 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId }) => {
                 'Raw Flour Base': '/images/synthetic-wheat.png',
                 'Raw Paste': '/images/neon-tomato.png',
                 'Glow Berry Batch': '/images/glow-berry.png',
+                'Lumina Extract': '/images/bio-lumina-fruit.svg',
+                'Nano Spores': '/images/nano-orchid.svg',
+                'Void Essence': '/images/void-melon.svg',
               };
               return Object.entries(inventory).sort(([, a], [, b]) => b - a).map(([res, qty]) => (
                 <div key={res} className="flex items-center gap-2.5 py-1.5 border-b border-white/5 last:border-0">
@@ -536,11 +559,12 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId }) => {
                 onWaterConsumptionReport={handleFarmWaterReport}
                 cropGrowthModifier={cropGrowthModifier}
                 isEnergyCritical={isEnergyCritical}
-                onHarvestRequest={handleHarvestRequest}
+                onBatchHarvest={handleBatchHarvest}
                 radiationLevel={radiationLevel}
                 fertilizer={fertilizer}
                 onFertilizerChange={setFertilizer}
                 podCapacity={podCapacity}
+                tier4Unlocked={tier4Unlocked}
               />
             </>
           )

@@ -23,11 +23,12 @@ interface FarmSystemProps {
   cropGrowthModifier: number;
   onWaterConsumptionReport: (waterDraw: number) => void;
   isEnergyCritical: boolean;
-  onHarvestRequest: (cropId: string, outputResource: string) => void;
+  onBatchHarvest: (outputResources: string[]) => void;
   radiationLevel: number;
   fertilizer: number;
   onFertilizerChange: (newAmount: number) => void;
   podCapacity: number;
+  tier4Unlocked: number;
 }
 
 const POD_COUNT = 4;
@@ -36,8 +37,8 @@ const POD_IDS = Array.from({ length: POD_COUNT }, (_, i) => `POD_${String(i + 1)
 const FarmSystem: React.FC<FarmSystemProps> = ({ 
     currentWater, currentEnergy, onWaterChange, onEnergyChange,
     onEnergyConsumptionReport, cropGrowthModifier, onWaterConsumptionReport,
-    isEnergyCritical, onHarvestRequest, radiationLevel, fertilizer, onFertilizerChange,
-    podCapacity
+    isEnergyCritical, onBatchHarvest, radiationLevel, fertilizer, onFertilizerChange,
+    podCapacity, tier4Unlocked
 }) => {
   const { t } = useLanguage();
   const [crops, setCrops] = useState<Crop[]>(() => {
@@ -57,6 +58,11 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
     { id: 'synthetic-wheat', name: 'Synthetic Wheat', waterRequired: 12, energyRequired: 6, baseGrowthTime: 40, baseEnergyDraw: 1.2, waterPerSecond: 0.55, outputResource: 'Raw Flour Base', image: '/images/synthetic-wheat.png' },
     { id: 'neon-tomato', name: 'Neon Tomato', waterRequired: 20, energyRequired: 10, baseGrowthTime: 60, baseEnergyDraw: 2.5, waterPerSecond: 0.8, outputResource: 'Raw Paste', image: '/images/neon-tomato.png' },
     { id: 'glow-berry', name: 'Glow Berry', waterRequired: 30, energyRequired: 18, baseGrowthTime: 120, baseEnergyDraw: 4, waterPerSecond: 1.1, outputResource: 'Glow Berry Batch', image: '/images/glow-berry.png' },
+    ...(tier4Unlocked > 0 ? [
+      { id: 'bio-lumina-fruit', name: 'Bio Lumina Fruit', waterRequired: 40, energyRequired: 25, baseGrowthTime: 200, baseEnergyDraw: 6, waterPerSecond: 1.5, outputResource: 'Lumina Extract', image: '/images/bio-lumina-fruit.svg' },
+      { id: 'nano-orchid', name: 'Nano Orchid', waterRequired: 50, energyRequired: 30, baseGrowthTime: 250, baseEnergyDraw: 7, waterPerSecond: 1.8, outputResource: 'Nano Spores', image: '/images/nano-orchid.svg' },
+      { id: 'void-melon', name: 'Void Melon', waterRequired: 60, energyRequired: 35, baseGrowthTime: 300, baseEnergyDraw: 8, waterPerSecond: 2.0, outputResource: 'Void Essence', image: '/images/void-melon.svg' },
+    ] : []),
   ]);
 
   const [plantModal, setPlantModal] = useState<{ podId: string } | null>(null);
@@ -263,10 +269,11 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
               {/* Toplu hasat button */}
               {readyCount >= 1 && (
                 <button onClick={() => {
-                  readyCrops.forEach(c => {
+                  const outputs = readyCrops.map(c => {
                     const info = findCropInfo(c.name);
-                    onHarvestRequest(c.id, info?.outputResource || 'Raw Lettuce');
+                    return info?.outputResource || 'Raw Lettuce';
                   });
+                  onBatchHarvest(outputs);
                   setCrops(prev => prev.filter(c => !(c.isHarvestable && c.podId === podId)));
                 }}
                   className="w-full py-1.5 bg-emerald-600 text-white font-mono text-[9px] font-bold uppercase rounded shadow-[0_0_10px_rgba(16,185,129,0.3)] cursor-pointer active:scale-95 transition-all z-10">

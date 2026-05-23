@@ -211,19 +211,19 @@ const FactorySystem: React.FC<FactorySystemProps> = ({ currentWater, currentEner
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       {isEnergyCritical && (
-        <div className="glass-panel rounded-xl p-3 flex items-center gap-3 border-l-2 border-l-red-500">
-          <AlertTriangle className="w-5 h-5 text-red-400 animate-pulse" />
-          <span className="font-mono text-[10px] text-red-400 font-bold uppercase">{t('factory.energyCritical')}</span>
+        <div className="glass-panel rounded-xl p-2 flex items-center gap-3 border-l-2 border-l-red-500">
+          <AlertTriangle className="w-4 h-4 text-red-400 animate-pulse" />
+          <span className="font-mono text-[9px] text-red-400 font-bold uppercase">{t('factory.energyCritical')}</span>
         </div>
       )}
 
       {/* Active Production Grid */}
       {activeCount > 0 && (
-        <section>
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-mono text-[10px] text-[#849495] uppercase tracking-widest">
+        <section className="bg-[#0e0e0f]/50 backdrop-blur-sm rounded-xl border border-white/5">
+          <div className="flex items-center justify-between px-3 py-1.5 bg-[#0a0a0b]/80 rounded-t-xl border-b border-white/5">
+            <h3 className="font-mono text-[10px] text-[#00f3ff] uppercase tracking-widest font-bold">
               <Factory className="w-3 h-3 inline mr-1" /> Aktif Üretim ({activeCount})
             </h3>
             {readyCount > 0 && (
@@ -233,7 +233,7 @@ const FactorySystem: React.FC<FactorySystemProps> = ({ currentWater, currentEner
               </button>
             )}
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-6 gap-1.5 p-2">
             {jobs.map(job => {
               const chain = PRODUCTION_CHAINS.find(c => c.id === job.chainId);
               if (!chain) return null;
@@ -241,9 +241,9 @@ const FactorySystem: React.FC<FactorySystemProps> = ({ currentWater, currentEner
               const timeLeft = getTimeLeft(job);
               return (
                 <button key={job.id} onClick={() => collectJob(job.id)} disabled={!job.isReady}
-                  className={`aspect-square rounded-lg overflow-hidden relative flex flex-col items-center justify-center border transition-all cursor-pointer ${
+                  className={`aspect-square rounded-lg overflow-hidden relative flex flex-col items-center justify-center border transition-all cursor-pointer bg-black ${
                     job.isReady
-                      ? 'border-emerald-500/60 bg-emerald-950/20 active:scale-95'
+                      ? 'border-emerald-500/60 active:scale-95'
                       : 'border-white/10'
                   }`}>
                   {/* Background image */}
@@ -257,15 +257,17 @@ const FactorySystem: React.FC<FactorySystemProps> = ({ currentWater, currentEner
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0f] via-transparent to-transparent" />
-                  {/* Content */}
-                  {job.isReady ? (
-                    <span className="text-[20px] z-10">✅</span>
-                  ) : (
-                    <>
-                      <span className="font-mono text-[18px] text-white font-bold z-10 drop-shadow-[0_0_6px_rgba(0,0,0,0.8)]">{timeLeft}</span>
-                      <span className="font-mono text-[6px] text-[#849495] uppercase tracking-wider z-10">sn</span>
-                    </>
+                  {/* Timer top-right */}
+                  {!job.isReady && (
+                    <div className="absolute top-1 right-1.5 z-10 flex items-center gap-0.5">
+                      <span className="font-mono text-[10px] text-white font-bold drop-shadow-[0_0_6px_rgba(0,0,0,0.9)]">{timeLeft}</span>
+                      <span className="font-mono text-[5px] text-[#849495] uppercase">sn</span>
+                    </div>
                   )}
+                  {/* Center content */}
+                  {job.isReady ? (
+                    <span className="text-[24px] z-10">✅</span>
+                  ) : null}
                   {/* Label */}
                   <span className="absolute bottom-1 left-1 right-1 font-mono text-[6px] text-white/70 truncate text-center z-10">
                     {tcrop(chain.outputResource.resource)}
@@ -284,64 +286,71 @@ const FactorySystem: React.FC<FactorySystemProps> = ({ currentWater, currentEner
       )}
 
       {/* Production Chains */}
-      <section className="flex flex-col gap-2">
-        <h3 className="font-mono text-[11px] text-[#849495] uppercase tracking-widest px-1">{t('factory.availableChains')}</h3>
+      <section className="bg-[#0e0e0f]/50 backdrop-blur-sm rounded-xl border border-white/5">
+        <div className="flex items-center px-3 py-1.5 bg-[#0a0a0b]/80 rounded-t-xl border-b border-white/5">
+          <h3 className="font-mono text-[10px] text-[#00f3ff] uppercase tracking-widest font-bold">{t('factory.availableChains')}</h3>
+        </div>
+        <div className="p-2 grid grid-cols-2 gap-2">
         {PRODUCTION_CHAINS.map(chain => {
           const canAffordOne = chain.inputResources.every(r => canAffordResource(r.resource, r.amount));
           return (
             <button key={chain.id} onClick={() => { setSelectedChain(chain); setStartQty(1); }}
-              className={`glass-panel rounded-xl p-3.5 flex items-center gap-4 text-left w-full transition-all cursor-pointer active:scale-98 hover:border-[#00f3ff]/30 ${
+              className={`glass-panel rounded-xl p-2.5 flex flex-col text-left w-full transition-all cursor-pointer active:scale-98 hover:border-[#00f3ff]/30 relative ${
                 !canAffordOne ? 'opacity-60' : ''
               }`}>
+              {/* Timer top-right */}
+              <div className="absolute top-1.5 right-2 flex items-center gap-0.5 z-10">
+                <Timer className="w-2.5 h-2.5 text-[#00f3ff]" />
+                <span className="font-mono text-[8px] text-[#00f3ff] font-bold">{chain.processingTime}s</span>
+              </div>
+              <h4 className="font-mono text-[11px] text-white font-bold truncate w-full mb-2 pr-10">{tname(chain.name)}</h4>
+              <div className="flex items-start gap-2.5">
               {/* Product image */}
-              <div className={`${canAffordOne ? 'neon-glow-wrapper' : ''} w-20 h-20 rounded-xl flex-shrink-0 relative`}>
-                {canAffordOne && <div className="neon-glow-glow" />}
-                <div className={`absolute inset-0 bg-gradient-to-br from-[#00f3ff]/5 via-transparent to-[#00f3ff]/10 ${canAffordOne ? 'animate-pulse' : ''} z-10 rounded-xl`} />
+              <div className={`${canAffordOne ? 'neon-glow-wrapper' : ''} w-14 h-14 rounded-lg flex-shrink-0 relative mt-0.5`}>
+                {canAffordOne && <div className="neon-glow-glow" />
+                }<div className={`absolute inset-0 bg-gradient-to-br from-[#00f3ff]/5 via-transparent to-[#00f3ff]/10 ${canAffordOne ? 'animate-pulse' : ''} z-10 rounded-lg`} />
                 {chain.image ? (
                   <img src={chain.image} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[24px] text-[#3a494b]">⚙️</div>
+                  <div className="w-full h-full flex items-center justify-center text-[18px] text-[#3a494b]">⚙️</div>
                 )}
               </div>
               {/* Info */}
-              <div className="flex-1 min-w-0">
-                <h4 className="font-mono text-[13px] text-white font-bold truncate">{tname(chain.name)}</h4>
-                <p className="font-mono text-[10px] text-[#849495] mt-1">{chain.description}</p>
-                {/* Formula per 1 output */}
-                <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+              <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                <p className="font-mono text-[9px] text-[#b9cacb] leading-tight">{chain.description}</p>
+                {/* Formula - single line */}
+                <div className="flex items-center gap-1 flex-nowrap overflow-hidden">
                   {chain.inputResources.map((r, idx) => {
                     return (
-                      <div key={r.resource} className="flex items-center gap-1.5 bg-[#0e0e0f]/60 px-2 py-1 rounded">
-                        {idx > 0 && <span className="text-[10px] text-[#849495] font-mono mr-0.5">+</span>}
-                        <span className="font-mono text-[11px] text-white font-bold">{r.amount}</span>
+                      <div key={r.resource} className="flex items-center gap-0.5 bg-[#0e0e0f]/60 px-1 py-0.5 rounded shrink-0">
+                        {idx > 0 && <span className="text-[7px] text-[#849495] font-mono mr-0.5">+</span>}
+                        <span className="font-mono text-[8px] text-white font-bold">{r.amount}</span>
                         {resourceImage(r.resource) ? (
-                          <img src={resourceImage(r.resource)} alt="" className="w-5 h-5 rounded object-cover" />
+                          <img src={resourceImage(r.resource)} alt="" className="w-3 h-3 rounded object-cover" />
                         ) : (
-                          <span className="text-[12px]">💧</span>
+                          <span className="text-[8px]">💧</span>
                         )}
                       </div>
                     );
                   })}
-                  <span className="text-[13px] text-[#00f3ff] font-mono mx-1">→</span>
-                  <div className="flex items-center gap-1.5 bg-[#0e0e0f]/60 px-2 py-1 rounded">
-                    <span className="font-mono text-[11px] text-emerald-400 font-bold">{chain.outputResource.amount}</span>
-                    <div className="w-5 h-5 rounded overflow-hidden bg-[#0e0e0f] border border-white/10 flex-shrink-0">
+                  <span className="text-[10px] text-[#00f3ff] font-mono shrink-0">→</span>
+                  <div className="flex items-center gap-0.5 bg-[#0e0e0f]/60 px-1 py-0.5 rounded shrink-0">
+                    <span className="font-mono text-[8px] text-emerald-400 font-bold">{chain.outputResource.amount}</span>
+                    <div className="w-3 h-3 rounded overflow-hidden bg-[#0e0e0f] border border-white/10 flex-shrink-0">
                       {chain.image ? (
                         <img src={chain.image} alt="" className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[8px] text-[#3a494b]">⚙️</div>
+                        <div className="w-full h-full flex items-center justify-center text-[5px] text-[#3a494b]">⚙️</div>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 ml-auto">
-                    <Timer className="w-4 h-4 text-[#00f3ff]" />
-                    <span className="font-mono text-[10px] text-[#00f3ff] font-bold">{chain.processingTime}s</span>
-                  </div>
                 </div>
+              </div>
               </div>
             </button>
           );
         })}
+        </div>
       </section>
 
       {/* Start Production Modal */}

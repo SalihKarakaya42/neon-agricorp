@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sprout } from 'lucide-react';
+import { Sprout, Droplet, Zap } from 'lucide-react';
 import { useLanguage } from './i18n';
 
 interface Crop {
@@ -29,6 +29,8 @@ interface FarmSystemProps {
   onFertilizerChange: (newAmount: number) => void;
   podCapacity: number;
   tier4Unlocked: number;
+  waterPerSec: number;
+  energyPerSec: number;
 }
 
 const POD_COUNT = 4;
@@ -38,7 +40,7 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
     currentWater, currentEnergy, onWaterChange, onEnergyChange,
     onEnergyConsumptionReport, cropGrowthModifier, onWaterConsumptionReport,
     isEnergyCritical, onBatchHarvest, radiationLevel, fertilizer, onFertilizerChange,
-    podCapacity, tier4Unlocked
+    podCapacity, tier4Unlocked, waterPerSec, energyPerSec
 }) => {
   const { t } = useLanguage();
   const [crops, setCrops] = useState<Crop[]>(() => {
@@ -171,6 +173,45 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
     <div className="flex flex-col gap-4">
 
       <section className="grid grid-cols-2 gap-3">
+        {/* Water Cell */}
+        <div className="rounded-lg p-3 flex flex-col gap-2 relative overflow-hidden min-h-[160px] shadow-[0_4px_20px_rgba(0,0,0,0.6)]">
+          <img src="/images/backgrounds/su.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-[#0e0e0f]/60" />
+          <div className="absolute top-1.5 right-2 z-10">
+            <span className={`font-mono text-[11px] font-bold uppercase ${waterPerSec >= 0 ? 'text-emerald-400' : 'text-red-400'} drop-shadow-[0_0_6px_rgba(0,0,0,0.8)]`}>
+              {waterPerSec >= 0 ? '+' : ''}{waterPerSec.toFixed(1)}/s
+            </span>
+          </div>
+          <div className="relative z-10 flex flex-col gap-2 flex-1">
+            <div className="flex items-center gap-2">
+              <Droplet className="w-5 h-5 text-blue-400" />
+              <span className="font-mono text-[11px] text-white font-bold uppercase">Su</span>
+            </div>
+            <div className="flex-1 flex items-center justify-center">
+              <span className="font-mono text-[28px] text-blue-300 font-bold drop-shadow-[0_0_10px_rgba(96,165,250,0.3)]">{Math.floor(currentWater)}</span>
+            </div>
+          </div>
+        </div>
+        {/* Energy Cell */}
+        <div className="rounded-lg p-3 flex flex-col gap-2 relative overflow-hidden min-h-[160px] shadow-[0_4px_20px_rgba(0,0,0,0.6)]">
+          <img src="/images/backgrounds/enerji.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-[#0e0e0f]/60" />
+          <div className="absolute top-1.5 right-2 z-10">
+            <span className={`font-mono text-[11px] font-bold uppercase ${energyPerSec >= 0 ? 'text-emerald-400' : 'text-red-400'} drop-shadow-[0_0_6px_rgba(0,0,0,0.8)]`}>
+              {energyPerSec >= 0 ? '+' : ''}{energyPerSec.toFixed(1)}/s
+            </span>
+          </div>
+          <div className="relative z-10 flex flex-col gap-2 flex-1">
+            <div className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-yellow-500" />
+              <span className="font-mono text-[11px] text-white font-bold uppercase">Enerji</span>
+            </div>
+            <div className="flex-1 flex items-center justify-center">
+              <span className={`font-mono text-[28px] font-bold drop-shadow-[0_0_10px_rgba(234,179,8,0.3)] ${isEnergyCritical ? 'text-red-400' : 'text-yellow-400'}`}>{Math.floor(currentEnergy)}</span>
+            </div>
+          </div>
+        </div>
+
         {POD_IDS.map(podId => {
           const podCrops = cropsInPod[podId] || [];
           const used = podCrops.length;
@@ -194,7 +235,10 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
             : 0;
 
           return (
-            <div key={podId} className="glass-panel rounded-lg p-3 flex flex-col gap-2 relative overflow-hidden min-h-[200px]">
+            <div key={podId} className="glass-panel rounded-lg p-3 flex flex-col gap-2 relative overflow-hidden min-h-[200px] shadow-[0_4px_20px_rgba(0,0,0,0.6)]">
+              {/* Arkaplan resmi */}
+              <img src="/images/backgrounds/tarım.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-[#0e0e0f]/40" />
               {/* Full background reveal image when crops exist */}
               {cropInfo && (
                 <>

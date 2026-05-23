@@ -565,6 +565,8 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId, username, avatarId }) => {
                 onFertilizerChange={setFertilizer}
                 podCapacity={podCapacity}
                 tier4Unlocked={tier4Unlocked}
+                waterPerSec={waterPerSec}
+                energyPerSec={energyPerSec}
               />
             </>
           )

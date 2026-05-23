@@ -141,13 +141,14 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
           const time = timers[techDef.id] || 0;
           const isResearched = techData.isResearched;
           const status = getTechStatus(techDef);
+          const canAffordRes = canAffordResources(techDef.inputResources);
 
           return (
             <div key={techDef.id} onClick={() => { if (status !== 'researching') setSelectedTech(techDef); }}
               className={`rounded-xl p-3 flex flex-col gap-2 relative border transition-all cursor-pointer active:scale-[0.98] ${
                 isResearched ? 'border-green-500/40' : status === 'researching' ? 'border-yellow-500/40' : 'border-white/5 hover:border-[#00f3ff]/30'
-              } bg-[#0e0e0f]/50 backdrop-blur-sm ${status === 'available' ? 'neon-glow-wrapper' : ''}`}>
-              {status === 'available' && <div className="neon-glow-glow" />}
+              } bg-[#0e0e0f]/50 backdrop-blur-sm ${status === 'available' && canAffordRes ? 'neon-glow-wrapper' : ''}`}>
+              {status === 'available' && canAffordRes && <div className="neon-glow-glow" />}
               <div className="flex items-start gap-2.5 z-10">
                 <div className="w-14 h-14 rounded-lg flex-shrink-0 relative overflow-hidden bg-[#0e0e0f] border border-white/10">
                   <img src={techDef.image} alt="" className="w-full h-full object-cover" />

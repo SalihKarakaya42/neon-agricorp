@@ -74,3 +74,17 @@
 - [x] Hasat ürünleri depoya gelmeme (Edge Function fail'de rollback yok)
 - [x] Fabrika chain çevirileri (productionChains namespace)
 - [x] Batch harvest: outputResources array (tek server çağrısı)
+
+## 10. Görsel & UI İyileştirmeleri
+- [x] Çiftlik: su + enerji grid hücreleri (üst satır, arkaplan resimli)
+- [x] Çiftlik: pod arkaplanları (tarım.jpg)
+- [x] Çiftlik: su/enerji saatlik üretim hızı (sağ üst köşe)
+- [x] Global arkaplan (arkaplan.jpg tekrarlanan doku)
+- [x] Vinyet efekti (4 kenarda siyah içe gölge)
+- [x] Grid hücrelerine siyah gölge (derinlik efekti)
+- [x] Fabrika: aktif üretim 6 sütun, siyah zemin
+- [x] Fabrika: müsait zincirler 2 sütun grid
+- [x] Fabrika: neon glow animasyonu (dönen konik gradient)
+- [x] Fabrika: ürün adı full width, süre sağ üst köşe
+- [x] Fabrika: per-unit formül (2 buğday → 1 un gibi)
+- [x] Yarım şeffaf paneller + koyu başlık şeritleri

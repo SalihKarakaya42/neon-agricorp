@@ -18,8 +18,8 @@
 
 ## Önemli Dosyalar
 - `src/GameLoop.tsx` — Ana oyun döngüsü, state yönetimi, save/load
-- `src/FarmSystem.tsx` — Pod bazlı ekim/hasat (batch harvest)
-- `src/FactorySystem.tsx` — Grid bazlı üretim zincirleri (yeni)
+- `src/FarmSystem.tsx` — Pod bazlı ekim/hasat + su/enerji grid hücreleri
+- `src/FactorySystem.tsx` — Grid bazlı üretim zincirleri (6-col aktif, 2-col chain list)
 - `src/ResearchSystem.tsx` — Araştırma ağacı
 - `src/MarketSystem.tsx` — Pazar (talep dalgalanması)
 - `src/ContractSystem.tsx` — MegaCorp sözleşmeleri
@@ -27,10 +27,11 @@
 - `src/Layout.tsx` — Alt tab navigasyonlu iskelet
 - `src/syncService.ts` — Edge function çağrıları
 - `src/i18n/` — Çoklu dil sistemi (tr, en)
-- `src/index.css` — Tailwind + neon-glow-wrapper, hologram-card, scanline
+- `src/index.css` — Tailwind + neon-glow-wrapper, vignette, arkaplan.jpg
 - `sql/factory_jobs_migration.sql` — Factory jobs sütunu
 - `public/images/factory/` — 10 adet fabrika ürün SVG'si
 - `public/images/avatars/` — 20 adet profil avatarı
+- `public/images/backgrounds/` — arkaplan, tarım, su, enerji, depo resimleri
 
 ## SQL
 - `player_data` tablosu: water, energy, credits, inventory, pump_power, base_energy_production, crop_growth_modifier, water_efficiency, max_water_capacity, max_energy_capacity, unlocked_t3_factories, unlocked_prestige, pod_capacity, tier4_unlocked, research_state, factory_jobs, last_saved

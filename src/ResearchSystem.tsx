@@ -49,6 +49,22 @@ const resourceImage = (res: string): string | undefined => {
   return map[res];
 };
 
+const statDescription = (stat: string, value: number): string => {
+  const descriptions: Record<string, string> = {
+    farmCropGrowthSpeed: `Ekinlerin büyüme hızını %${Math.round(value * 100)} artırır.`,
+    pumpPower: `Su pompalarının üretim kapasitesini +${value} artırır. Her birim +1 su/sn üretim sağlar.`,
+    baseEnergyProduction: `Enerji üretimini +${value} artırır. Her birim +1 enerji/sn üretim sağlar.`,
+    waterEfficiency: `Su üretim verimliliğini %${Math.round(value * 100)} artırır. Pompalardan daha fazla su elde edilir.`,
+    maxEnergyCapacity: `Maksimum enerji depolama kapasitesini +${value} artırır.`,
+    tier3CropUnlock: 'Glow Berry, Plasma Mushroom gibi yeni nesil ekinlerin kilidini açar.',
+    podCapacity: `Her bir poda ekilebilecek maksimum ürün sayısını +${value} artırır.`,
+    tier4CropUnlock: 'Bio Lumina Fruit, Nano Orchid, Void Melon gibi genetik ürünlerin kilidini açar.',
+    unlockedT3Factories: 'Genetic Lab, AI Assembly gibi gelişmiş fabrikaların kilidini açar.',
+    unlockedPrestige: 'Prestij sisteminin kilidini açar. Kalıcı bonuslar kazanmanızı sağlar.',
+  };
+  return descriptions[stat] || `+${value} ${stat}`;
+};
+
 const categoryIcon = (cat: string) => {
   switch (cat) {
     case 'Agriculture': return '#00f3ff';
@@ -149,11 +165,8 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
                 isResearched ? 'border-green-500/40' : status === 'researching' ? 'border-yellow-500/40' : 'border-white/5 hover:border-[#00f3ff]/30'
               } bg-[#0e0e0f]/50 backdrop-blur-sm`}>
               {/* Title row - full width */}
-              <div className="flex items-start justify-between gap-2 z-10">
-                <h3 className="font-mono text-[11px] text-white font-bold truncate">{tnames(techDef.name)}</h3>
-                <div className="flex items-center gap-1 bg-[#1c1b1c] px-2 py-0.5 rounded border border-white/5 shrink-0">
-                  <span className="font-mono text-[10px] text-[#00f3ff] font-bold">{cost}</span>
-                </div>
+              <div className="z-10">
+                <h3 className="font-mono text-[11px] text-white font-bold truncate pr-8">{tnames(techDef.name)}</h3>
               </div>
               {/* Image + info row */}
               <div className="flex items-start gap-2.5 z-10">
@@ -180,6 +193,19 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
                       </div>
                     ))}
                   </div>
+                </div>
+              </div>
+              {/* Cost centered + time bottom-right */}
+              <div className="relative z-10">
+                <div className="flex justify-center">
+                  <div className="flex items-center gap-1 bg-[#1c1b1c] px-2.5 py-1 rounded border border-white/5">
+                    <Coins className="w-3 h-3 text-[#00f3ff]" />
+                    <span className="font-mono text-[10px] text-[#00f3ff] font-bold">{cost}</span>
+                  </div>
+                </div>
+                <div className="absolute bottom-0 right-0 flex items-center gap-0.5">
+                  <Clock className="w-2.5 h-2.5 text-yellow-400" />
+                  <span className="font-mono text-[8px] text-yellow-400 font-bold">{calculateBaseTimeSeconds(techDef.id)}s</span>
                 </div>
               </div>
 
@@ -281,9 +307,12 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
                     {/* Ödül */}
                     <div className="bg-[#0e0e0f]/60 rounded-xl p-3">
                       <h4 className="font-mono text-[9px] text-[#b9cacb] uppercase tracking-wider mb-2">Ödül</h4>
-                      <div className="flex items-center gap-2">
-                        <Sprout className="w-3.5 h-3.5 text-emerald-400" />
-                        <span className="font-mono text-[10px] text-[#849495]">+{selectedTech.unlocks.value} {selectedTech.unlocks.stat}</span>
+                      <div className="flex items-start gap-2.5">
+                        <Sprout className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-mono text-[10px] text-emerald-400 font-bold">+{selectedTech.unlocks.value} {selectedTech.unlocks.stat}</span>
+                          <p className="font-mono text-[9px] text-[#b9cacb]/80 leading-relaxed">{statDescription(selectedTech.unlocks.stat, selectedTech.unlocks.value)}</p>
+                        </div>
                       </div>
                     </div>
 

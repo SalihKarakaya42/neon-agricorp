@@ -164,6 +164,7 @@ const en: Translations = {
     'Laboratory Systems': 'Laboratory Systems',
     'Excavation Protocol I': 'Excavation Protocol I',
     'Genetic Engineering': 'Genetic Engineering',
+    'Genişletilmiş Sektörler I': 'Expanded Sectors I',
     'Civilization Blueprint': 'Civilization Blueprint',
   },
   categories: {

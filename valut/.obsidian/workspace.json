@@ -1,0 +1,220 @@
+{
+  "main": {
+    "id": "61af9eefbda9c5d9",
+    "type": "split",
+    "children": [
+      {
+        "id": "3a3efaf44b1df5a1",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c3326a05248665d0",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Grafik Görünümü"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "7821d87534172622",
+    "type": "split",
+    "children": [
+      {
+        "id": "61aec60267cc1327",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1c29e8285e0991d1",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Dosya Gezgini"
+            }
+          },
+          {
+            "id": "1e9e2a94d056eb7b",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Ara"
+            }
+          },
+          {
+            "id": "30ed31b81c682a14",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Yer İmleri"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "6b8c577943695296",
+    "type": "split",
+    "children": [
+      {
+        "id": "c0bddb877cf0e12a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "33843345e64f2191",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "vault/02_WIKI/concepts/ciftlik-urunleri.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "ciftlik-urunleri için geri bağlantılar"
+            }
+          },
+          {
+            "id": "e15a3ffe441904f8",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "vault/02_WIKI/concepts/ciftlik-urunleri.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "ciftlik-urunleri'dan giden bağlantılar"
+            }
+          },
+          {
+            "id": "3da0391bbd0dc398",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Etiketler"
+            }
+          },
+          {
+            "id": "49267d27fe8bd48c",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "Tüm özellikler"
+            }
+          },
+          {
+            "id": "1e69d5f36b2e97c5",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "vault/02_WIKI/concepts/ciftlik-urunleri.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "ciftlik-urunleri ana hatları"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Hızlı geçişi aç": false,
+      "graph:Grafik görünümünü aç": false,
+      "canvas:Yeni tuval oluşturun": false,
+      "daily-notes:Bugünün Notunu Aç": false,
+      "templates:Şablon ekle": false,
+      "command-palette:Komut paletini aç": false,
+      "bases:Yeni taban oluştur": false
+    }
+  },
+  "active": "c3326a05248665d0",
+  "lastOpenFiles": [
+    "vault/01_RAW/_README.md",
+    "vault/02_WIKI/_meta/tag-index.md.tmp.177732.b466665754f4",
+    "vault/02_WIKI/_meta/backlink-map.md.tmp.177732.37f85e5ada95",
+    "vault/01_RAW/_README.md.tmp.177732.08b048a62824",
+    "vault/01_RAW/domains/neon-agricorp/ResearchSystem.tsx.md",
+    "vault/01_RAW/domains/neon-agricorp/ResearchSystem.tsx.md.tmp.177732.5a58eed014ee",
+    "vault/01_RAW/domains/neon-agricorp/FactorySystem.tsx.md",
+    "vault/01_RAW/domains/neon-agricorp/FactorySystem.tsx.md.tmp.177732.31ff3b42909e",
+    "vault/01_RAW/domains/neon-agricorp/FarmSystem.tsx.md",
+    "vault/01_RAW/domains/neon-agricorp/FarmSystem.tsx.md.tmp.177732.af46b0ecd552",
+    "vault/02_WIKI/_meta/backlink-map.md.tmp.177732.c12a4731642c",
+    "vault/02_WIKI/_meta/tag-index.md.tmp.177732.23c9811da5e6",
+    "vault/02_WIKI/_index.md.tmp.177732.f1578836c5ee",
+    "vault/02_WIKI/concepts/_index.md.tmp.177732.2ce9fc89a46d",
+    "vault/02_WIKI/concepts/su-sistemi.md",
+    "vault/02_WIKI/concepts/enerji-sistemi.md",
+    "vault/01_RAW/domains/neon-agricorp/WaterSystem.tsx.md",
+    "vault/01_RAW/domains/neon-agricorp/EnergySystem.tsx.md",
+    "vault/02_WIKI/concepts/arastirma-sistemi.md",
+    "02_WIKI/concepts/enerji-sistemi.md",
+    "vault/02_WIKI/concepts/fabrika-uretim-zincirleri.md",
+    "Wikilink.md",
+    "vault/02_WIKI/concepts/ciftlik-urunleri.md",
+    "02_WIKI/concepts/su-sistemi.md",
+    "vault/02_WIKI/references/_index.md",
+    "vault/05_TOOLS/_README.md",
+    "vault/04_LINTS/_README.md",
+    "vault/03_OUTPUTS/_README.md",
+    "image.png.md",
+    "vault/templates/default-slide.md",
+    "vault/templates/default-article.md",
+    "vault/templates/default-concept.md",
+    "vault/00_INBOX/_README.md",
+    "vault/02_WIKI/_meta/backlink-map.md",
+    "vault/02_WIKI/_meta/tag-index.md"
+  ]
+}

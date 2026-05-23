@@ -1,33 +1,15 @@
-import { useEffect, useRef } from 'react';
 import { useLanguage } from './i18n';
 import { Zap } from 'lucide-react';
 
 interface EnergySystemProps {
   currentEnergy: number;
-  onEnergyChange: (newEnergy: number) => void;
   totalConsumption: number;
   baseProduction: number;
   maxEnergy: number;
 }
 
-const EnergySystem: React.FC<EnergySystemProps> = ({ currentEnergy, onEnergyChange, totalConsumption, baseProduction, maxEnergy }) => {
+const EnergySystem: React.FC<EnergySystemProps> = ({ currentEnergy, totalConsumption, baseProduction, maxEnergy }) => {
   const { t } = useLanguage();
-  const lastTickTimeRef = useRef(Date.now());
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = Date.now();
-      const elapsedTime = (now - lastTickTimeRef.current) / 1000;
-      lastTickTimeRef.current = now;
-      const netEnergyChangeRate = baseProduction - totalConsumption;
-      const netEnergyChange = netEnergyChangeRate * elapsedTime;
-      let newEnergy = currentEnergy + netEnergyChange;
-      newEnergy = Math.max(0, Math.min(newEnergy, maxEnergy));
-      onEnergyChange(newEnergy);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [currentEnergy, onEnergyChange, totalConsumption, baseProduction, maxEnergy]);
-
   const netRate = baseProduction - totalConsumption;
   const pct = Math.min(100, Math.round((currentEnergy / maxEnergy) * 100));
   const isLow = currentEnergy < maxEnergy * 0.1;

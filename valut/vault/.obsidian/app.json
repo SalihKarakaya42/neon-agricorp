@@ -1,0 +1,19 @@
+{
+  "promptDelete": false,
+  "newFileLocation": "current",
+  "attachmentFolderPath": "attachments",
+  "useMarkdownLinks": true,
+  "showUnsupportedFiles": true,
+  "alwaysUpdateLinks": true,
+  "newLinkFormat": "shortest",
+  "communityPluginSortOrder": "download",
+  "defaultViewMode": "source",
+  "livePreview": false,
+  "showFrontmatter": true,
+  "spellcheck": true,
+  "tabSize": 2,
+  "rightToLeft": false,
+  "strictLineBreaks": false,
+  "showLineNumber": true,
+  "readableLineLength": true
+}

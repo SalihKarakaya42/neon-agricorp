@@ -236,6 +236,26 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId, username, avatarId }) => {
     };
   }, [water, energy, credits, inventory, pumpPower, baseEnergyProduction, cropGrowthModifier, waterEfficiency, maxWaterCapacity, maxEnergyCapacity, unlockedT3Factories, tier4Unlocked, unlockedPrestige, researchState, userId]);
 
+  const totalEnergyConsumption = farmEnergyDraw + factoryEnergyDraw + eventEnergyDraw;
+  const totalWaterConsumption = farmWaterDraw + eventWaterDraw;
+
+  // Water/energy tick — runs independently of which tab is active
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWater(prev => {
+        const netRate = pumpPower * waterEfficiency - 2 - totalWaterConsumption;
+        const next = prev + netRate;
+        return Math.max(0, Math.min(maxWaterCapacity, next));
+      });
+      setEnergy(prev => {
+        const netRate = baseEnergyProduction - totalEnergyConsumption;
+        const next = prev + netRate;
+        return Math.max(0, Math.min(maxEnergyCapacity, next));
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [pumpPower, waterEfficiency, totalWaterConsumption, maxWaterCapacity, baseEnergyProduction, totalEnergyConsumption, maxEnergyCapacity]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setRadiationLevel(prev => {
@@ -358,9 +378,6 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId, username, avatarId }) => {
   
   
 
-  const totalEnergyConsumption = farmEnergyDraw + factoryEnergyDraw + eventEnergyDraw;
-  const totalWaterConsumption = farmWaterDraw + eventWaterDraw;
-  
   const energyThreshold = maxEnergyCapacity * 0.1;
   const isEnergyCritical = energy < energyThreshold;
 
@@ -534,17 +551,15 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId, username, avatarId }) => {
           content: (
             <>
               <div className="hidden">
-                <WaterSystem 
-                  currentWater={water} 
-                  onWaterChange={handleWaterChange} 
+                <WaterSystem
+                  currentWater={water}
                   totalConsumption={totalWaterConsumption}
                   pumpPower={pumpPower}
                   waterEfficiency={waterEfficiency}
                   maxWater={maxWaterCapacity}
                 />
-                <EnergySystem 
-                  currentEnergy={energy} 
-                  onEnergyChange={handleEnergyChange} 
+                <EnergySystem
+                  currentEnergy={energy}
                   totalConsumption={totalEnergyConsumption}
                   baseProduction={baseEnergyProduction}
                   maxEnergy={maxEnergyCapacity}

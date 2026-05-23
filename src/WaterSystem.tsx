@@ -1,38 +1,18 @@
-import { useEffect, useRef } from 'react';
 import { useLanguage } from './i18n';
 import { Droplets } from 'lucide-react';
 
 interface WaterSystemProps {
   currentWater: number;
-  onWaterChange: (newWater: number) => void;
   totalConsumption: number;
   pumpPower: number;
   waterEfficiency: number;
   maxWater: number;
 }
 
-const WaterSystem: React.FC<WaterSystemProps> = ({ currentWater, onWaterChange, totalConsumption, pumpPower, waterEfficiency, maxWater }) => {
+const WaterSystem: React.FC<WaterSystemProps> = ({ currentWater, totalConsumption, pumpPower, waterEfficiency, maxWater }) => {
   const { t } = useLanguage();
   const initialEfficiency = 1.0;
   const leakage = 2;
-  const lastTickTimeRef = useRef(Date.now());
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = Date.now();
-      const elapsedTime = (now - lastTickTimeRef.current) / 1000;
-      lastTickTimeRef.current = now;
-      const effectiveEfficiency = initialEfficiency * waterEfficiency;
-      const waterProductionRate = (pumpPower * effectiveEfficiency) - leakage;
-      const netRate = waterProductionRate - totalConsumption;
-      const netWaterChange = netRate * elapsedTime;
-      let newWater = currentWater + netWaterChange;
-      newWater = Math.max(0, Math.min(maxWater, newWater));
-      onWaterChange(newWater);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [currentWater, onWaterChange, pumpPower, totalConsumption, waterEfficiency, maxWater]);
-
   const netRate = (pumpPower * initialEfficiency * waterEfficiency) - leakage - totalConsumption;
   const tankPct = Math.min(100, Math.round((currentWater / maxWater) * 100));
   const isLow = currentWater < 50;

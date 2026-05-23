@@ -164,6 +164,7 @@ const tr: Translations = {
     'Laboratory Systems': 'Laboratuvar Sistemleri',
     'Excavation Protocol I': 'Kazı Protokolü I',
     'Genetic Engineering': 'Genetik Mühendisliği',
+    'Genişletilmiş Sektörler I': 'Genişletilmiş Sektörler I',
     'Civilization Blueprint': 'Medeniyet Planı',
   },
   categories: {

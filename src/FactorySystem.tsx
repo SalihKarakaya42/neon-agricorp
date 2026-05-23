@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLanguage } from './i18n';
-import { Timer, AlertTriangle, Factory } from 'lucide-react';
+import { Timer, AlertTriangle, Factory, Droplet, Zap } from 'lucide-react';
 
 interface ProductionChain {
   id: string; name: string; description: string;
@@ -37,16 +37,16 @@ interface FactorySystemProps {
 const LS_KEY = 'neon_factory_jobs';
 
 const PRODUCTION_CHAINS: ProductionChain[] = [
-  { id: 'chain-wheat-flour', name: 'Wheat to Flour', description: '2 Buğday → 1 Un', inputResources: [{ resource: 'Raw Flour Base', amount: 2 }], outputResource: { resource: 'Flour Pack', amount: 1 }, processingTime: 15, baseEnergyDraw: 3, image: '/images/factory/flour-pack.svg' },
-  { id: 'chain-potato-starch', name: 'Potato to Starch', description: '2 Patates → 1 Nişasta', inputResources: [{ resource: 'Raw Starch', amount: 2 }], outputResource: { resource: 'Potato Starch', amount: 1 }, processingTime: 20, baseEnergyDraw: 4, image: '/images/factory/potato-starch.svg' },
-  { id: 'chain-flour-dough', name: 'Flour & Water to Dough', description: '1 Un + 1 Su → 1 Hamur', inputResources: [{ resource: 'Flour Pack', amount: 1 }, { resource: 'Water', amount: 1 }], outputResource: { resource: 'Nutrient Dough', amount: 1 }, processingTime: 25, baseEnergyDraw: 5, image: '/images/factory/nutrient-dough.svg' },
-  { id: 'chain-dough-pizza', name: 'Dough to Cyber Pizza', description: '1 Hamur → 1 Pizza', inputResources: [{ resource: 'Nutrient Dough', amount: 1 }], outputResource: { resource: 'Cyber Pizza', amount: 1 }, processingTime: 35, baseEnergyDraw: 6, image: '/images/factory/cyber-pizza.svg' },
-  { id: 'chain-paste-gel', name: 'Raw Paste Processing', description: '2 Domates → 1 Jel', inputResources: [{ resource: 'Raw Paste', amount: 2 }], outputResource: { resource: 'Refined Gel', amount: 1 }, processingTime: 40, baseEnergyDraw: 8, image: '/images/factory/refined-gel.svg' },
-  { id: 'chain-gel-core', name: 'Gel to Quantum Core', description: '10 Jel + 20 Su → 1 Çekirdek', inputResources: [{ resource: 'Refined Gel', amount: 10 }, { resource: 'Water', amount: 20 }], outputResource: { resource: 'Quantum Core', amount: 1 }, processingTime: 80, baseEnergyDraw: 15, image: '/images/factory/quantum-core.svg' },
-  { id: 'chain-berry-nutrient', name: 'Glow Berry Refinement', description: '2 Meyve → 1 Besin', inputResources: [{ resource: 'Glow Berry Batch', amount: 2 }], outputResource: { resource: 'Crystalized Nutrient', amount: 1 }, processingTime: 60, baseEnergyDraw: 10, image: '/images/factory/crystalized-nutrient.svg' },
-  { id: 'chain-lumina-serum', name: 'Lumina to Serum', description: '2 Lumina + 5 Su → 1 Serum', inputResources: [{ resource: 'Lumina Extract', amount: 2 }, { resource: 'Water', amount: 5 }], outputResource: { resource: 'Quantum Serum', amount: 1 }, processingTime: 90, baseEnergyDraw: 12, image: '/images/factory/quantum-serum.svg' },
-  { id: 'chain-nano-coating', name: 'Nano Coating Production', description: '2 Spor → 1 Kaplama', inputResources: [{ resource: 'Nano Spores', amount: 2 }], outputResource: { resource: 'Nano Coating', amount: 1 }, processingTime: 100, baseEnergyDraw: 14, image: '/images/factory/nano-coating.svg' },
-  { id: 'chain-void-crystal', name: 'Void Crystal Synthesis', description: '3 Öz + 1 Çekirdek → 1 Kristal', inputResources: [{ resource: 'Void Essence', amount: 3 }, { resource: 'Quantum Core', amount: 1 }], outputResource: { resource: 'Void Crystal', amount: 1 }, processingTime: 150, baseEnergyDraw: 18, image: '/images/factory/void-crystal.svg' },
+  { id: 'chain-wheat-flour', name: 'Wheat to Flour', description: '2 Ham Un Bazı → 1 Un Paketi', inputResources: [{ resource: 'Raw Flour Base', amount: 2 }], outputResource: { resource: 'Flour Pack', amount: 1 }, processingTime: 15, baseEnergyDraw: 3, image: '/images/factory/flour-pack.svg' },
+  { id: 'chain-potato-starch', name: 'Potato to Starch', description: '2 Ham Nişasta → 1 Patates Nişastası', inputResources: [{ resource: 'Raw Starch', amount: 2 }], outputResource: { resource: 'Potato Starch', amount: 1 }, processingTime: 20, baseEnergyDraw: 4, image: '/images/factory/potato-starch.svg' },
+  { id: 'chain-flour-dough', name: 'Flour & Water to Dough', description: '1 Un Paketi + 1 Su → 1 Besin Hamuru', inputResources: [{ resource: 'Flour Pack', amount: 1 }, { resource: 'Water', amount: 1 }], outputResource: { resource: 'Nutrient Dough', amount: 1 }, processingTime: 25, baseEnergyDraw: 5, image: '/images/factory/nutrient-dough.svg' },
+  { id: 'chain-dough-pizza', name: 'Dough to Cyber Pizza', description: '1 Besin Hamuru → 1 Siber Pizza', inputResources: [{ resource: 'Nutrient Dough', amount: 1 }], outputResource: { resource: 'Cyber Pizza', amount: 1 }, processingTime: 35, baseEnergyDraw: 6, image: '/images/factory/cyber-pizza.svg' },
+  { id: 'chain-paste-gel', name: 'Raw Paste Processing', description: '2 Ham Macun → 1 Rafine Jel', inputResources: [{ resource: 'Raw Paste', amount: 2 }], outputResource: { resource: 'Refined Gel', amount: 1 }, processingTime: 40, baseEnergyDraw: 8, image: '/images/factory/refined-gel.svg' },
+  { id: 'chain-gel-core', name: 'Gel to Quantum Core', description: '10 Rafine Jel + 20 Su → 1 Kuantum Çekirdek', inputResources: [{ resource: 'Refined Gel', amount: 10 }, { resource: 'Water', amount: 20 }], outputResource: { resource: 'Quantum Core', amount: 1 }, processingTime: 80, baseEnergyDraw: 15, image: '/images/factory/quantum-core.svg' },
+  { id: 'chain-berry-nutrient', name: 'Glow Berry Refinement', description: '2 Parlak Meyve Partisi → 1 Kristalize Besin', inputResources: [{ resource: 'Glow Berry Batch', amount: 2 }], outputResource: { resource: 'Crystalized Nutrient', amount: 1 }, processingTime: 60, baseEnergyDraw: 10, image: '/images/factory/crystalized-nutrient.svg' },
+  { id: 'chain-lumina-serum', name: 'Lumina to Serum', description: '2 Lumina Özütü + 5 Su → 1 Kuantum Serumu', inputResources: [{ resource: 'Lumina Extract', amount: 2 }, { resource: 'Water', amount: 5 }], outputResource: { resource: 'Quantum Serum', amount: 1 }, processingTime: 90, baseEnergyDraw: 12, image: '/images/factory/quantum-serum.svg' },
+  { id: 'chain-nano-coating', name: 'Nano Coating Production', description: '2 Nano Sporlar → 1 Nano Kaplama', inputResources: [{ resource: 'Nano Spores', amount: 2 }], outputResource: { resource: 'Nano Coating', amount: 1 }, processingTime: 100, baseEnergyDraw: 14, image: '/images/factory/nano-coating.svg' },
+  { id: 'chain-void-crystal', name: 'Void Crystal Synthesis', description: '3 Void Özü + 1 Kuantum Çekirdek → 1 Void Kristali', inputResources: [{ resource: 'Void Essence', amount: 3 }, { resource: 'Quantum Core', amount: 1 }], outputResource: { resource: 'Void Crystal', amount: 1 }, processingTime: 150, baseEnergyDraw: 18, image: '/images/factory/void-crystal.svg' },
 ];
 
 const FACTORY_IMAGES: Record<string, string> = {
@@ -375,26 +375,64 @@ const FactorySystem: React.FC<FactorySystemProps> = ({ currentWater, currentEner
                 <button onClick={() => setSelectedChain(null)} className="p-1 text-white/60 hover:text-white cursor-pointer">✕</button>
               </div>
 
-              <div className="bg-[#0e0e0f]/60 rounded-lg p-3 mb-3">
-                <span className="font-mono text-[9px] text-[#849495] uppercase tracking-wider">Girdiler (birim)</span>
-                <div className="flex flex-col gap-2 mt-2">
-                  {selectedChain.inputResources.map(r => {
-                    const owned = r.resource === 'Water' ? currentWater : r.resource === 'Credits' ? currentCredits : (currentInventory[r.resource] || 0);
-                    const enough = owned >= r.amount * startQty;
-                    return (
-                      <div key={r.resource} className="flex items-center gap-3">
-                        {resourceImage(r.resource) ? (
-                          <img src={resourceImage(r.resource)} alt="" className="w-7 h-7 rounded object-cover" />
-                        ) : (
-                          <span className="text-[14px]">💧</span>
-                        )}
-                        <span className="font-mono text-[11px] text-white/70 flex-1">{tcrop(r.resource)}</span>
-                        <span className={`font-mono text-[11px] font-bold ${enough ? 'text-emerald-400' : 'text-red-400'}`}>
-                          {Math.floor(owned)}/{r.amount * startQty}
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="bg-[#0e0e0f]/60 rounded-lg p-3">
+                  <span className="font-mono text-[9px] text-[#849495] uppercase tracking-wider">Girdiler (birim)</span>
+                  <div className="flex flex-col gap-2 mt-2">
+                    {selectedChain.inputResources.map(r => {
+                      const owned = r.resource === 'Water' ? currentWater : r.resource === 'Credits' ? currentCredits : (currentInventory[r.resource] || 0);
+                      const enough = owned >= r.amount * startQty;
+                      const resImg = resourceImage(r.resource);
+                      return (
+                        <div key={r.resource} className="flex items-center gap-2">
+                          {r.resource === 'Water' ? (
+                            <Droplet className="w-4 h-4 text-blue-400 shrink-0" />
+                          ) : resImg ? (
+                            <img src={resImg} alt="" className="w-6 h-6 rounded object-cover" />
+                          ) : null}
+                          <span className="font-mono text-[9px] text-white/70 flex-1 truncate">
+                            {r.resource === 'Water' ? t('resourceLabels.Water') : tcrop(r.resource)}
+                          </span>
+                          <span className={`font-mono text-[9px] font-bold ${enough ? 'text-emerald-400' : 'text-red-400'}`}>
+                            {Math.floor(owned)}/{r.amount * startQty}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="bg-[#0e0e0f]/60 rounded-lg p-3">
+                  <span className="font-mono text-[9px] text-[#849495] uppercase tracking-wider">Üretim İhtiyacı</span>
+                  <div className="flex flex-col gap-2 mt-2">
+                    {selectedChain.baseEnergyDraw > 0 && (
+                      <div className="bg-[#0e0e0f]/60 rounded-xl p-2">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <Zap className="w-3 h-3 text-yellow-500" />
+                          <span className="text-[#849495] font-mono text-[8px]">Enerji Çekişi</span>
+                        </div>
+                        <span className="font-mono text-[12px] font-bold text-yellow-400">
+                          {selectedChain.baseEnergyDraw * startQty}
                         </span>
+                        <span className="font-mono text-[7px] text-[#849495] ml-1">/s</span>
                       </div>
-                    );
-                  })}
+                    )}
+                    {selectedChain.inputResources.some(r => r.resource === 'Water') && (
+                      <div className="bg-[#0e0e0f]/60 rounded-xl p-2">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <Droplet className="w-3 h-3 text-blue-400" />
+                          <span className="text-[#849495] font-mono text-[8px]">Su Tüketimi</span>
+                        </div>
+                        <span className="font-mono text-[12px] font-bold text-blue-300">
+                          {(() => {
+                            const waterInput = selectedChain.inputResources.find(r => r.resource === 'Water');
+                            return waterInput ? waterInput.amount * startQty : 0;
+                          })()}
+                        </span>
+                        <span className="font-mono text-[7px] text-[#849495] ml-1">/birim</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -417,9 +455,10 @@ const FactorySystem: React.FC<FactorySystemProps> = ({ currentWater, currentEner
                     </div>
                     <input type="range" min={1} max={safeMax} value={Math.min(startQty, safeMax)}
                       onChange={e => setStartQty(Math.max(1, Math.min(safeMax, Number(e.target.value))))}
-                      className="w-full h-2 appearance-none bg-neutral-800 rounded-full outline-none cursor-pointer
-                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#00f3ff] [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(0,243,255,0.5)] [&::-webkit-slider-thumb]:cursor-pointer
-                        [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#00f3ff] [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:shadow-[0_0_10px_rgba(0,243,255,0.5)] [&::-moz-range-thumb]:cursor-pointer"
+                      className="w-full h-4 appearance-none bg-neutral-800 rounded-full outline-none cursor-pointer
+                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-7 [&::-webkit-slider-thumb]:h-7 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#00f3ff] [&::-webkit-slider-thumb]:shadow-[0_0_14px_rgba(0,243,255,0.6)] [&::-webkit-slider-thumb]:cursor-pointer
+                        [&::-moz-range-thumb]:w-7 [&::-moz-range-thumb]:h-7 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#00f3ff] [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:shadow-[0_0_14px_rgba(0,243,255,0.6)] [&::-moz-range-thumb]:cursor-pointer
+                        [&::-moz-range-track]:h-4 [&::-moz-range-track]:bg-neutral-800 [&::-moz-range-track]:rounded-full"
                       style={{ background: `linear-gradient(to right, #00f3ff ${pct}%, #2a2a2c ${pct}%)` }} />
                     <div className="flex justify-between mt-1">
                       <span className="font-mono text-[8px] text-[#3a494b]">1</span>

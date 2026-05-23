@@ -131,7 +131,9 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
     });
     onInventoryChange(newInv);
     onCreditsChange(currentCredits - cost);
-    onResearchStateUpdate({ techs: techs.map(t => t.id === techDef.id ? t : t), timers: { ...timers, [techDef.id]: calculateBaseTimeSeconds(techDef.id) } });
+    const existing = techs.find(t => t.id === techDef.id);
+    const newTechs = existing ? techs : [...techs, { id: techDef.id, level: 1, isResearched: false }];
+    onResearchStateUpdate({ techs: newTechs, timers: { ...timers, [techDef.id]: calculateBaseTimeSeconds(techDef.id) } });
     setSelectedTech(null);
   };
 
@@ -158,6 +160,8 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
           const isResearched = techData.isResearched;
           const status = getTechStatus(techDef);
           const canAffordRes = canAffordResources(techDef.inputResources);
+	          const canAffordCredits = currentCredits >= cost;
+	          const canAffordAll = canAffordRes && canAffordCredits;
 
           return (
             <div key={techDef.id} onClick={() => { if (status !== 'researching') setSelectedTech(techDef); }}
@@ -170,8 +174,8 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
               </div>
               {/* Image + info row */}
               <div className="flex items-start gap-2.5 z-10">
-                <div className={`${status === 'available' && canAffordRes ? 'neon-glow-wrapper' : ''} w-14 h-14 rounded-lg flex-shrink-0 relative mt-0.5`}>
-                  {status === 'available' && canAffordRes && <div className="neon-glow-glow" />}
+                <div className={`${status === 'available' && canAffordAll ? 'neon-glow-wrapper' : ''} w-14 h-14 rounded-lg flex-shrink-0 relative mt-0.5`}>
+                  {status === 'available' && canAffordAll && <div className="neon-glow-glow" />}
                   <div className="w-full h-full rounded-lg overflow-hidden bg-[#0e0e0f] border border-white/10">
                     <img src={techDef.image} alt="" className="w-full h-full object-cover" />
                   </div>
@@ -181,12 +185,13 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
                     <span className="w-2 h-2 rounded-full" style={{ backgroundColor: categoryIcon(techDef.category) }} />
                     <span className="font-mono text-[8px] text-[#b9cacb]">{tcat(techDef.category)}</span>
                   </div>
-                  <div className="flex flex-wrap items-center gap-1">
+                  <div className="flex flex-col gap-1">
                     {techDef.inputResources.map((r, idx) => (
-                      <div key={idx} className="flex items-center gap-0.5 bg-[#0e0e0f]/60 px-1 py-0.5 rounded">
-                        <span className={`font-mono text-[7px] font-bold ${(currentInventory[r.resource] || 0) >= r.amount ? 'text-white' : 'text-red-400'}`}>{r.amount}</span>
+                      <div key={idx} className="flex items-center gap-1.5 bg-[#0e0e0f]/60 px-1.5 py-0.5 rounded">
+                        <span className={`font-mono text-[7px] font-bold ${(currentInventory[r.resource] || 0) >= r.amount ? 'text-white' : 'text-red-400'}`}>{r.amount}×</span>
+                        <span className="font-mono text-[7px] text-[#b9cacb] flex-1 truncate">{t(`crops.${r.resource}`)}</span>
                         {resourceImage(r.resource) ? (
-                          <img src={resourceImage(r.resource)} alt="" className="w-2.5 h-2.5 rounded object-cover" />
+                          <img src={resourceImage(r.resource)} alt="" className="w-3 h-3 rounded object-cover" />
                         ) : (
                           <span className="text-[7px]">📦</span>
                         )}
@@ -195,18 +200,13 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
                   </div>
                 </div>
               </div>
-              {/* Cost centered + time bottom-right */}
-              <div className="relative z-10">
-                <div className="flex justify-center">
-                  <div className="flex items-center gap-1 bg-[#1c1b1c] px-2.5 py-1 rounded border border-white/5">
-                    <Coins className="w-3 h-3 text-[#00f3ff]" />
-                    <span className="font-mono text-[10px] text-[#00f3ff] font-bold">{cost}</span>
-                  </div>
-                </div>
-                <div className="absolute bottom-0 right-0 flex items-center gap-0.5">
-                  <Clock className="w-2.5 h-2.5 text-yellow-400" />
-                  <span className="font-mono text-[8px] text-yellow-400 font-bold">{calculateBaseTimeSeconds(techDef.id)}s</span>
-                </div>
+              {/* Cost + time row centered */}
+              <div className="flex items-center justify-center gap-2 bg-[#1c1b1c] px-2.5 py-1 rounded border border-white/5 z-10">
+                <Coins className="w-3 h-3 text-[#00f3ff]" />
+                <span className="font-mono text-[10px] text-[#00f3ff] font-bold">{cost}</span>
+                <span className="text-[#3a494b] text-[8px]">|</span>
+                <Clock className="w-2.5 h-2.5 text-yellow-400" />
+                <span className="font-mono text-[8px] text-yellow-400 font-bold">{calculateBaseTimeSeconds(techDef.id)}s</span>
               </div>
 
               <div className="w-full z-10">
@@ -309,9 +309,8 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
                       <h4 className="font-mono text-[9px] text-[#b9cacb] uppercase tracking-wider mb-2">Ödül</h4>
                       <div className="flex items-start gap-2.5">
                         <Sprout className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-mono text-[10px] text-emerald-400 font-bold">+{selectedTech.unlocks.value} {selectedTech.unlocks.stat}</span>
-                          <p className="font-mono text-[9px] text-[#b9cacb]/80 leading-relaxed">{statDescription(selectedTech.unlocks.stat, selectedTech.unlocks.value)}</p>
+                        <div className="flex flex-col">
+                          <p className="font-mono text-[12px] text-[#b9cacb]/90 leading-relaxed">{statDescription(selectedTech.unlocks.stat, selectedTech.unlocks.value)}</p>
                         </div>
                       </div>
                     </div>

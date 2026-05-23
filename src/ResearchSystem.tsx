@@ -145,13 +145,15 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
 
           return (
             <div key={techDef.id} onClick={() => { if (status !== 'researching') setSelectedTech(techDef); }}
-              className={`rounded-xl p-3 flex flex-col gap-2 relative border transition-all cursor-pointer active:scale-[0.98] ${
+              className={`rounded-xl p-3 flex flex-col gap-2 relative overflow-hidden border transition-all cursor-pointer active:scale-[0.98] ${
                 isResearched ? 'border-green-500/40' : status === 'researching' ? 'border-yellow-500/40' : 'border-white/5 hover:border-[#00f3ff]/30'
-              } bg-[#0e0e0f]/50 backdrop-blur-sm ${status === 'available' && canAffordRes ? 'neon-glow-wrapper' : ''}`}>
-              {status === 'available' && canAffordRes && <div className="neon-glow-glow" />}
+              } bg-[#0e0e0f]/50 backdrop-blur-sm`}>
               <div className="flex items-start gap-2.5 z-10">
-                <div className="w-14 h-14 rounded-lg flex-shrink-0 relative overflow-hidden bg-[#0e0e0f] border border-white/10">
-                  <img src={techDef.image} alt="" className="w-full h-full object-cover" />
+                <div className={`${status === 'available' && canAffordRes ? 'neon-glow-wrapper' : ''} w-14 h-14 rounded-lg flex-shrink-0 relative mt-0.5`}>
+                  {status === 'available' && canAffordRes && <div className="neon-glow-glow" />}
+                  <div className="w-full h-full rounded-lg overflow-hidden bg-[#0e0e0f] border border-white/10">
+                    <img src={techDef.image} alt="" className="w-full h-full object-cover" />
+                  </div>
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-mono text-[11px] text-white font-bold truncate">{tnames(techDef.name)}</h3>

@@ -604,6 +604,8 @@ const GameLoop: React.FC<GameLoopProps> = ({ userId, username, avatarId }) => {
               onStatBoost={handleStatBoost}
               researchState={researchState}
               onResearchStateUpdate={handleResearchStateUpdate}
+              currentInventory={inventory}
+              onInventoryChange={handleInventoryChange}
             />
           )
         },

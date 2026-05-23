@@ -101,3 +101,11 @@
 - [x] Ekim modalında "Ekim İhtiyacı" / "Saniyelik Büyüme İhtiyacı" ayrımı
 - [x] Ürün grid resimleri hücre boyutuna sığdırıldı, 💧 simgesi kaldırıldı
 - [x] Hasat butonu büyütüldü (w-full, py-3, pulse animasyonu, neon gölge)
+
+## 12. Araştırma Sistemi Yeniden Tasarımı
+- [x] 2 sütunlu grid düzeni
+- [x] 11 adet SVG görsel (public/images/research/)
+- [x] Her araştırma için envanterden ürün gereksinimi (inputResources)
+- [x] Fabrika kartı benzeri layout: resim + isim + girdi listesi
+- [x] startResearch artık kredi + envanter tüketiyor
+- [x] Kartlarda yeterli ürün yoksa kırmızı uyarı rengi

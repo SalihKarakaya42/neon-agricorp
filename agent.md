@@ -42,3 +42,9 @@
 - `availableCrops` içinde her ürün: waterRequired, energyRequired (tek seferlik) + waterPerSecond, baseEnergyDraw (sürekli)
 - Büyüme: `totalMod = cropGrowthModifier * (1 / energyLevel.multiplier) * radiation * fertilizer`
 - Pod'a tıklayınca ekim modalı, hazır ürün varsa "Hasat" butonu
+
+## ResearchSystem
+- 11 araştırma, her biri SVG görsel + inputResources (envanterden ürün)
+- 2 sütun grid, fabrika kartı layout
+- startResearch: kredi + envanter tüketir
+- Görseller: `public/images/research/*.svg`

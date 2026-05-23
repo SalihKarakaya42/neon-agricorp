@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useLanguage } from './i18n';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Sprout, Clock, Box, Coins } from 'lucide-react';
 
 interface ResearchTechData { id: string; level: number; isResearched: boolean; }
 interface InputResource { resource: string; amount: number; }
@@ -61,6 +62,7 @@ const categoryIcon = (cat: string) => {
 const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCreditsChange, onStatBoost, researchState, onResearchStateUpdate, currentInventory, onInventoryChange }) => {
   const { t } = useLanguage();
   const { techs, timers } = researchState;
+  const [selectedTech, setSelectedTech] = useState<ResearchTechDefinition | null>(null);
   const tnames = (key: string) => t(`researchNames.${key}`) || key;
   const tcat = (key: string) => t(`categories.${key}`) || key;
 
@@ -114,6 +116,15 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
     onInventoryChange(newInv);
     onCreditsChange(currentCredits - cost);
     onResearchStateUpdate({ techs: techs.map(t => t.id === techDef.id ? t : t), timers: { ...timers, [techDef.id]: calculateBaseTimeSeconds(techDef.id) } });
+    setSelectedTech(null);
+  };
+
+  const getTechStatus = (techDef: ResearchTechDefinition) => {
+    const td = techs.find(t => t.id === techDef.id);
+    if (!td) return 'available';
+    if (td.isResearched) return 'completed';
+    if (timers[techDef.id] && timers[techDef.id]! > 0) return 'researching';
+    return 'available';
   };
 
   return (
@@ -129,25 +140,23 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
           const cost = calculateCost(techDef.id, techData.level);
           const time = timers[techDef.id] || 0;
           const isResearched = techData.isResearched;
-          const canAffordCredits = currentCredits >= cost;
-          const canAffordRes = canAffordResources(techDef.inputResources);
-          const canStart = canAffordCredits && canAffordRes;
+          const status = getTechStatus(techDef);
 
           return (
-            <div key={techDef.id} className={`rounded-xl p-3 flex flex-col gap-2 relative overflow-hidden border ${isResearched ? 'border-green-500/40' : 'border-white/5'} bg-[#0e0e0f]/50 backdrop-blur-sm`}>
+            <div key={techDef.id} onClick={() => { if (status !== 'researching') setSelectedTech(techDef); }}
+              className={`rounded-xl p-3 flex flex-col gap-2 relative overflow-hidden border transition-all cursor-pointer active:scale-[0.98] ${
+                isResearched ? 'border-green-500/40' : status === 'researching' ? 'border-yellow-500/40' : 'border-white/5 hover:border-[#00f3ff]/30'
+              } bg-[#0e0e0f]/50 backdrop-blur-sm`}>
               <div className="flex items-start gap-2.5 z-10">
-                {/* Image */}
                 <div className="w-14 h-14 rounded-lg flex-shrink-0 relative overflow-hidden bg-[#0e0e0f] border border-white/10">
                   <img src={techDef.image} alt="" className="w-full h-full object-cover" />
                 </div>
-                {/* Info */}
                 <div className="flex-1 min-w-0">
                   <h3 className="font-mono text-[11px] text-white font-bold truncate">{tnames(techDef.name)}</h3>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="w-2 h-2 rounded-full" style={{ backgroundColor: categoryIcon(techDef.category) }} />
                     <span className="font-mono text-[8px] text-[#b9cacb]">{tcat(techDef.category)}</span>
                   </div>
-                  {/* Input resources */}
                   <div className="flex flex-wrap items-center gap-1 mt-1.5">
                     {techDef.inputResources.map((r, idx) => (
                       <div key={idx} className="flex items-center gap-0.5 bg-[#0e0e0f]/60 px-1 py-0.5 rounded">
@@ -161,7 +170,6 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
                     ))}
                   </div>
                 </div>
-                {/* Cost badge */}
                 <div className="flex items-center gap-1 bg-[#1c1b1c] px-2 py-0.5 rounded border border-white/5 shrink-0">
                   <span className="font-mono text-[10px] text-[#00f3ff] font-bold">{cost}</span>
                 </div>
@@ -182,20 +190,121 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
                       <div className="progress-bar-fill bg-gradient-to-r from-yellow-500 to-orange-400" style={{ width: `${Math.round((1 - time / calculateBaseTimeSeconds(techDef.id)) * 100)}%` }} />
                     </div>
                   </div>
-                ) : (
-                  <button onClick={() => startResearch(techDef)} disabled={!canStart}
-                    className={`w-full py-1.5 rounded font-mono text-[9px] font-bold uppercase transition-all cursor-pointer ${
-                      canStart ? 'bg-[#00f3ff] text-neutral-950 hover:shadow-[0_0_12px_rgba(0,243,255,0.3)] active:scale-95'
-                        : 'border border-white/20 text-[#3a494b] cursor-not-allowed'
-                    }`}>
-                    {canStart ? `${t('research.research')} (${cost})` : t('research.cost')}
-                  </button>
-                )}
+                ) : null}
               </div>
             </div>
           );
         })}
       </div>
+
+      <AnimatePresence>
+        {selectedTech && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4" onClick={() => setSelectedTech(null)}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
+              onClick={e => e.stopPropagation()}
+              className="w-full max-w-sm bg-[#131314] rounded-2xl border border-[#00f3ff]/30 p-5 shadow-[0_0_35px_rgba(0,243,255,0.2)]"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#0e0e0f] border border-white/10 flex-shrink-0">
+                  <img src={selectedTech.image} alt="" className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-sans text-base font-bold text-white">{tnames(selectedTech.name)}</h3>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: categoryIcon(selectedTech.category) }} />
+                    <span className="font-mono text-[10px] text-[#b9cacb]">{tcat(selectedTech.category)}</span>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedTech(null)} className="p-1.5 text-white/60 hover:text-white rounded-lg hover:bg-neutral-800 transition-colors cursor-pointer">
+                  KAPAT
+                </button>
+              </div>
+
+              {(() => {
+                const td = techs.find(t => t.id === selectedTech.id) || { id: selectedTech.id, level: 1, isResearched: false };
+                const cost = calculateCost(selectedTech.id, td.level);
+                const time = calculateBaseTimeSeconds(selectedTech.id);
+                const canAffordCredits = currentCredits >= cost;
+                const canAffordRes = canAffordResources(selectedTech.inputResources);
+                const isResearched = td.isResearched;
+                const isResearching = timers[selectedTech.id] && timers[selectedTech.id]! > 0;
+
+                return (
+                  <div className="flex flex-col gap-4">
+                    {/* Gereksinimler */}
+                    <div className="bg-[#0e0e0f]/60 rounded-xl p-3">
+                      <h4 className="font-mono text-[9px] text-[#b9cacb] uppercase tracking-wider mb-2">Gereksinimler</h4>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Coins className="w-3.5 h-3.5 text-[#00f3ff]" />
+                            <span className="font-mono text-[10px] text-[#849495]">Kredi</span>
+                          </div>
+                          <span className={`font-mono text-[10px] font-bold ${canAffordCredits ? 'text-white' : 'text-red-400'}`}>{cost}</span>
+                        </div>
+                        {selectedTech.inputResources.map((r, idx) => (
+                          <div key={idx} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Box className="w-3.5 h-3.5 text-[#849495]" />
+                              <div className="flex items-center gap-1">
+                                {resourceImage(r.resource) && <img src={resourceImage(r.resource)} alt="" className="w-4 h-4 rounded object-cover" />}
+                                <span className="font-mono text-[10px] text-[#849495]">{r.resource}</span>
+                              </div>
+                            </div>
+                            <span className={`font-mono text-[10px] font-bold ${(currentInventory[r.resource] || 0) >= r.amount ? 'text-white' : 'text-red-400'}`}>
+                              {r.amount} ({(currentInventory[r.resource] || 0)})
+                            </span>
+                          </div>
+                        ))}
+                        <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-3.5 h-3.5 text-yellow-400" />
+                            <span className="font-mono text-[10px] text-[#849495]">Süre</span>
+                          </div>
+                          <span className="font-mono text-[10px] font-bold text-yellow-400">{time}s</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Ödül */}
+                    <div className="bg-[#0e0e0f]/60 rounded-xl p-3">
+                      <h4 className="font-mono text-[9px] text-[#b9cacb] uppercase tracking-wider mb-2">Ödül</h4>
+                      <div className="flex items-center gap-2">
+                        <Sprout className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="font-mono text-[10px] text-[#849495]">+{selectedTech.unlocks.value} {selectedTech.unlocks.stat}</span>
+                      </div>
+                    </div>
+
+                    {/* Buton */}
+                    {isResearched ? (
+                      <div className="w-full py-2.5 bg-green-950/30 border border-green-500/30 rounded-xl text-[11px] font-mono font-bold text-green-400 flex items-center justify-center gap-1.5 select-none">
+                        <CheckCircle2 className="w-4 h-4" /> {t('research.completed')}
+                      </div>
+                    ) : isResearching ? (
+                      <div className="w-full py-2.5 bg-yellow-950/30 border border-yellow-500/30 rounded-xl text-[11px] font-mono font-bold text-yellow-400 flex items-center justify-center gap-1.5 select-none">
+                        <Clock className="w-4 h-4" /> Araştırılıyor... {timers[selectedTech.id]}s
+                      </div>
+                    ) : (
+                      <button onClick={() => startResearch(selectedTech)} disabled={!canAffordCredits || !canAffordRes}
+                        className={`w-full py-2.5 rounded-xl font-mono text-[11px] font-bold uppercase transition-all cursor-pointer ${
+                          canAffordCredits && canAffordRes
+                            ? 'bg-[#00f3ff] text-neutral-950 hover:shadow-[0_0_15px_rgba(0,243,255,0.3)] active:scale-95'
+                            : 'border border-white/20 text-[#3a494b] cursor-not-allowed'
+                        }`}>
+                        {canAffordCredits && canAffordRes ? `ARAŞTIR (${cost})` : 'YETERSİZ KAYNAK'}
+                      </button>
+                    )}
+                  </div>
+                );
+              })()}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -278,7 +278,7 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
                             <Coins className="w-3.5 h-3.5 text-[#00f3ff]" />
                             <span className="font-mono text-[10px] text-[#849495]">Kredi</span>
                           </div>
-                          <span className={`font-mono text-[10px] font-bold ${canAffordCredits ? 'text-white' : 'text-red-400'}`}>{cost}</span>
+                          <span className={`font-mono text-[10px] font-bold ${canAffordCredits ? 'text-white' : 'text-red-400'}`}>{cost} ({currentCredits})</span>
                         </div>
                         {selectedTech.inputResources.map((r, idx) => (
                           <div key={idx} className="flex items-center justify-between">

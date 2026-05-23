@@ -148,6 +148,14 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
               className={`rounded-xl p-3 flex flex-col gap-2 relative overflow-hidden border transition-all cursor-pointer active:scale-[0.98] ${
                 isResearched ? 'border-green-500/40' : status === 'researching' ? 'border-yellow-500/40' : 'border-white/5 hover:border-[#00f3ff]/30'
               } bg-[#0e0e0f]/50 backdrop-blur-sm`}>
+              {/* Title row - full width */}
+              <div className="flex items-start justify-between gap-2 z-10">
+                <h3 className="font-mono text-[11px] text-white font-bold truncate">{tnames(techDef.name)}</h3>
+                <div className="flex items-center gap-1 bg-[#1c1b1c] px-2 py-0.5 rounded border border-white/5 shrink-0">
+                  <span className="font-mono text-[10px] text-[#00f3ff] font-bold">{cost}</span>
+                </div>
+              </div>
+              {/* Image + info row */}
               <div className="flex items-start gap-2.5 z-10">
                 <div className={`${status === 'available' && canAffordRes ? 'neon-glow-wrapper' : ''} w-14 h-14 rounded-lg flex-shrink-0 relative mt-0.5`}>
                   {status === 'available' && canAffordRes && <div className="neon-glow-glow" />}
@@ -155,13 +163,12 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
                     <img src={techDef.image} alt="" className="w-full h-full object-cover" />
                   </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-mono text-[11px] text-white font-bold truncate">{tnames(techDef.name)}</h3>
-                  <div className="flex items-center gap-1.5 mt-0.5">
+                <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                  <div className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full" style={{ backgroundColor: categoryIcon(techDef.category) }} />
                     <span className="font-mono text-[8px] text-[#b9cacb]">{tcat(techDef.category)}</span>
                   </div>
-                  <div className="flex flex-wrap items-center gap-1 mt-1.5">
+                  <div className="flex flex-wrap items-center gap-1">
                     {techDef.inputResources.map((r, idx) => (
                       <div key={idx} className="flex items-center gap-0.5 bg-[#0e0e0f]/60 px-1 py-0.5 rounded">
                         <span className={`font-mono text-[7px] font-bold ${(currentInventory[r.resource] || 0) >= r.amount ? 'text-white' : 'text-red-400'}`}>{r.amount}</span>
@@ -173,9 +180,6 @@ const ResearchSystem: React.FC<ResearchSystemProps> = ({ currentCredits, onCredi
                       </div>
                     ))}
                   </div>
-                </div>
-                <div className="flex items-center gap-1 bg-[#1c1b1c] px-2 py-0.5 rounded border border-white/5 shrink-0">
-                  <span className="font-mono text-[10px] text-[#00f3ff] font-bold">{cost}</span>
                 </div>
               </div>
 

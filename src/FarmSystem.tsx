@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sprout, Droplet, Zap } from 'lucide-react';
+import { Sprout, Droplet, Zap, Clock, Box } from 'lucide-react';
 import { useLanguage } from './i18n';
 
 interface Crop {
@@ -418,20 +418,58 @@ const FarmSystem: React.FC<FarmSystemProps> = ({
                       <h4 className="text-sm font-bold text-white">{tcrop(hoveredCrop.name)}</h4>
                     </div>
                     <div className="grid grid-cols-2 gap-2 mt-2 text-[10px] font-mono">
-                      <div className="bg-[#0e0e0f]/60 rounded p-2">
-                        <div className="text-[#b9cacb] uppercase tracking-wider mb-1">Ekim İhtiyacı</div>
-                        <div>💧 Su: <strong className="text-blue-300">{hoveredCrop.waterRequired * plantQty}</strong></div>
-                        <div>⚡ Enerji: <strong className="text-yellow-400">{hoveredCrop.energyRequired * plantQty}</strong></div>
+                      <div className="bg-[#0e0e0f]/60 rounded-xl p-2.5">
+                        <div className="text-[#b9cacb] uppercase tracking-wider mb-2 text-[9px]">Ekim İhtiyacı</div>
+                        <div className="flex flex-col gap-1.5">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5">
+                              <Droplet className="w-3 h-3 text-blue-400" />
+                              <span className="text-[#849495]">Su</span>
+                            </div>
+                            <span className={`font-mono font-bold ${currentWater >= hoveredCrop.waterRequired * plantQty ? 'text-white' : 'text-red-400'}`}>
+                              {hoveredCrop.waterRequired * plantQty} ({Math.floor(currentWater)})
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5">
+                              <Zap className="w-3 h-3 text-yellow-500" />
+                              <span className="text-[#849495]">Enerji</span>
+                            </div>
+                            <span className={`font-mono font-bold ${currentEnergy >= hoveredCrop.energyRequired * plantQty ? 'text-white' : 'text-red-400'}`}>
+                              {hoveredCrop.energyRequired * plantQty} ({Math.floor(currentEnergy)})
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="bg-[#0e0e0f]/60 rounded p-2">
-                        <div className="text-[#b9cacb] uppercase tracking-wider mb-1">Saniyelik Büyüme İhtiyacı</div>
-                        <div>💧 Su: <strong className="text-blue-300">{(hoveredCrop.waterPerSecond * plantQty).toFixed(1)}/s</strong></div>
-                        <div>⚡ Enerji: <strong className="text-yellow-400">{(hoveredCrop.baseEnergyDraw * plantQty).toFixed(1)}/s</strong></div>
+                      <div className="bg-[#0e0e0f]/60 rounded-xl p-2.5">
+                        <div className="text-[#b9cacb] uppercase tracking-wider mb-2 text-[9px]">Saniyelik Büyüme İhtiyacı</div>
+                        <div className="flex flex-col gap-1.5">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5">
+                              <Droplet className="w-3 h-3 text-blue-400" />
+                              <span className="text-[#849495]">Su</span>
+                            </div>
+                            <span className="font-mono font-bold text-blue-300">{(hoveredCrop.waterPerSecond * plantQty).toFixed(1)}/s</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5">
+                              <Zap className="w-3 h-3 text-yellow-500" />
+                              <span className="text-[#849495]">Enerji</span>
+                            </div>
+                            <span className="font-mono font-bold text-yellow-400">{(hoveredCrop.baseEnergyDraw * plantQty).toFixed(1)}/s</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-[#849495]">
-                      <span>Süre: <strong className="text-white">{hoveredCrop.baseGrowthTime}s</strong></span>
-                      <span>Çıktı: <strong className="text-white">{tcrop(hoveredCrop.outputResource)}</strong></span>
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-3 h-3 text-yellow-400" />
+                        <span>Süre: <strong className="text-white">{hoveredCrop.baseGrowthTime}s</strong></span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Box className="w-3 h-3 text-emerald-400" />
+                        <span>Çıktı: <strong className="text-white">{tcrop(hoveredCrop.outputResource)}</strong></span>
+                      </div>
                     </div>
                     <button onClick={() => plantCrop(availableCrops.indexOf(hoveredCrop))}
                       disabled={currentWater < hoveredCrop.waterRequired * plantQty || currentEnergy < hoveredCrop.energyRequired * plantQty}

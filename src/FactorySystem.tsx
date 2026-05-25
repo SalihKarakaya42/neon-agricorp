@@ -7,6 +7,7 @@ interface ProductionChain {
   id: string; name: string; description: string;
   inputResources: { resource: string; amount: number }[];
   outputResource: { resource: string; amount: number };
+  byProduct?: { resource: string; amount: number };
   processingTime: number; baseEnergyDraw: number;
   image: string;
 }
@@ -32,21 +33,23 @@ interface FactorySystemProps {
   onFactoryEnergyConsumptionReport: (energyDraw: number) => void;
   isEnergyCritical: boolean;
   userId: string;
+  onFertilizerAdd?: (amount: number) => void;
 }
 
 const LS_KEY = 'neon_factory_jobs';
 
 const PRODUCTION_CHAINS: ProductionChain[] = [
-  { id: 'chain-wheat-flour', name: 'Wheat to Flour', description: '2 Ham Un Bazı → 1 Un Paketi', inputResources: [{ resource: 'Raw Flour Base', amount: 2 }], outputResource: { resource: 'Flour Pack', amount: 1 }, processingTime: 15, baseEnergyDraw: 3, image: '/images/factory/flour-pack.svg' },
-  { id: 'chain-potato-starch', name: 'Potato to Starch', description: '2 Ham Nişasta → 1 Patates Nişastası', inputResources: [{ resource: 'Raw Starch', amount: 2 }], outputResource: { resource: 'Potato Starch', amount: 1 }, processingTime: 20, baseEnergyDraw: 4, image: '/images/factory/potato-starch.svg' },
-  { id: 'chain-flour-dough', name: 'Flour & Water to Dough', description: '1 Un Paketi + 1 Su → 1 Besin Hamuru', inputResources: [{ resource: 'Flour Pack', amount: 1 }, { resource: 'Water', amount: 1 }], outputResource: { resource: 'Nutrient Dough', amount: 1 }, processingTime: 25, baseEnergyDraw: 5, image: '/images/factory/nutrient-dough.svg' },
-  { id: 'chain-dough-pizza', name: 'Dough to Cyber Pizza', description: '1 Besin Hamuru → 1 Siber Pizza', inputResources: [{ resource: 'Nutrient Dough', amount: 1 }], outputResource: { resource: 'Cyber Pizza', amount: 1 }, processingTime: 35, baseEnergyDraw: 6, image: '/images/factory/cyber-pizza.svg' },
-  { id: 'chain-paste-gel', name: 'Raw Paste Processing', description: '2 Ham Macun → 1 Rafine Jel', inputResources: [{ resource: 'Raw Paste', amount: 2 }], outputResource: { resource: 'Refined Gel', amount: 1 }, processingTime: 40, baseEnergyDraw: 8, image: '/images/factory/refined-gel.svg' },
-  { id: 'chain-gel-core', name: 'Gel to Quantum Core', description: '10 Rafine Jel + 20 Su → 1 Kuantum Çekirdek', inputResources: [{ resource: 'Refined Gel', amount: 10 }, { resource: 'Water', amount: 20 }], outputResource: { resource: 'Quantum Core', amount: 1 }, processingTime: 80, baseEnergyDraw: 15, image: '/images/factory/quantum-core.svg' },
-  { id: 'chain-berry-nutrient', name: 'Glow Berry Refinement', description: '2 Parlak Meyve Partisi → 1 Kristalize Besin', inputResources: [{ resource: 'Glow Berry Batch', amount: 2 }], outputResource: { resource: 'Crystalized Nutrient', amount: 1 }, processingTime: 60, baseEnergyDraw: 10, image: '/images/factory/crystalized-nutrient.svg' },
-  { id: 'chain-lumina-serum', name: 'Lumina to Serum', description: '2 Lumina Özütü + 5 Su → 1 Kuantum Serumu', inputResources: [{ resource: 'Lumina Extract', amount: 2 }, { resource: 'Water', amount: 5 }], outputResource: { resource: 'Quantum Serum', amount: 1 }, processingTime: 90, baseEnergyDraw: 12, image: '/images/factory/quantum-serum.svg' },
-  { id: 'chain-nano-coating', name: 'Nano Coating Production', description: '2 Nano Sporlar → 1 Nano Kaplama', inputResources: [{ resource: 'Nano Spores', amount: 2 }], outputResource: { resource: 'Nano Coating', amount: 1 }, processingTime: 100, baseEnergyDraw: 14, image: '/images/factory/nano-coating.svg' },
-  { id: 'chain-void-crystal', name: 'Void Crystal Synthesis', description: '3 Void Özü + 1 Kuantum Çekirdek → 1 Void Kristali', inputResources: [{ resource: 'Void Essence', amount: 3 }, { resource: 'Quantum Core', amount: 1 }], outputResource: { resource: 'Void Crystal', amount: 1 }, processingTime: 150, baseEnergyDraw: 18, image: '/images/factory/void-crystal.svg' },
+  { id: 'chain-wheat-flour', name: 'Wheat to Flour', description: '2 Ham Un Bazı → 1 Un Paketi', inputResources: [{ resource: 'Raw Flour Base', amount: 2 }], outputResource: { resource: 'Flour Pack', amount: 1 }, byProduct: { resource: 'Posa', amount: 1 }, processingTime: 15, baseEnergyDraw: 3, image: '/images/factory/flour-pack.svg' },
+  { id: 'chain-potato-starch', name: 'Potato to Starch', description: '2 Ham Nişasta → 1 Patates Nişastası', inputResources: [{ resource: 'Raw Starch', amount: 2 }], outputResource: { resource: 'Potato Starch', amount: 1 }, byProduct: { resource: 'Posa', amount: 1 }, processingTime: 20, baseEnergyDraw: 4, image: '/images/factory/potato-starch.svg' },
+  { id: 'chain-flour-dough', name: 'Flour & Water to Dough', description: '1 Un Paketi + 1 Su → 1 Besin Hamuru', inputResources: [{ resource: 'Flour Pack', amount: 1 }, { resource: 'Water', amount: 1 }], outputResource: { resource: 'Nutrient Dough', amount: 1 }, byProduct: { resource: 'Posa', amount: 1 }, processingTime: 25, baseEnergyDraw: 5, image: '/images/factory/nutrient-dough.svg' },
+  { id: 'chain-dough-pizza', name: 'Dough to Cyber Pizza', description: '1 Besin Hamuru → 1 Siber Pizza', inputResources: [{ resource: 'Nutrient Dough', amount: 1 }], outputResource: { resource: 'Cyber Pizza', amount: 1 }, byProduct: { resource: 'Posa', amount: 1 }, processingTime: 35, baseEnergyDraw: 6, image: '/images/factory/cyber-pizza.svg' },
+  { id: 'chain-paste-gel', name: 'Raw Paste Processing', description: '2 Ham Macun → 1 Rafine Jel', inputResources: [{ resource: 'Raw Paste', amount: 2 }], outputResource: { resource: 'Refined Gel', amount: 1 }, byProduct: { resource: 'Posa', amount: 1 }, processingTime: 40, baseEnergyDraw: 8, image: '/images/factory/refined-gel.svg' },
+  { id: 'chain-gel-core', name: 'Gel to Quantum Core', description: '10 Rafine Jel + 20 Su → 1 Kuantum Çekirdek', inputResources: [{ resource: 'Refined Gel', amount: 10 }, { resource: 'Water', amount: 20 }], outputResource: { resource: 'Quantum Core', amount: 1 }, byProduct: { resource: 'Posa', amount: 2 }, processingTime: 80, baseEnergyDraw: 15, image: '/images/factory/quantum-core.svg' },
+  { id: 'chain-berry-nutrient', name: 'Glow Berry Refinement', description: '2 Parlak Meyve Partisi → 1 Kristalize Besin', inputResources: [{ resource: 'Glow Berry Batch', amount: 2 }], outputResource: { resource: 'Crystalized Nutrient', amount: 1 }, byProduct: { resource: 'Posa', amount: 1 }, processingTime: 60, baseEnergyDraw: 10, image: '/images/factory/crystalized-nutrient.svg' },
+  { id: 'chain-lumina-serum', name: 'Lumina to Serum', description: '2 Lumina Özütü + 5 Su → 1 Kuantum Serumu', inputResources: [{ resource: 'Lumina Extract', amount: 2 }, { resource: 'Water', amount: 5 }], outputResource: { resource: 'Quantum Serum', amount: 1 }, byProduct: { resource: 'Posa', amount: 2 }, processingTime: 90, baseEnergyDraw: 12, image: '/images/factory/quantum-serum.svg' },
+  { id: 'chain-nano-coating', name: 'Nano Coating Production', description: '2 Nano Sporlar → 1 Nano Kaplama', inputResources: [{ resource: 'Nano Spores', amount: 2 }], outputResource: { resource: 'Nano Coating', amount: 1 }, byProduct: { resource: 'Posa', amount: 2 }, processingTime: 100, baseEnergyDraw: 14, image: '/images/factory/nano-coating.svg' },
+  { id: 'chain-void-crystal', name: 'Void Crystal Synthesis', description: '3 Void Özü + 1 Kuantum Çekirdek → 1 Void Kristali', inputResources: [{ resource: 'Void Essence', amount: 3 }, { resource: 'Quantum Core', amount: 1 }], outputResource: { resource: 'Void Crystal', amount: 1 }, byProduct: { resource: 'Posa', amount: 3 }, processingTime: 150, baseEnergyDraw: 18, image: '/images/factory/void-crystal.svg' },
+  { id: 'chain-posa-fertilizer', name: 'Posa → Gübre', description: '5 Posa → 1 Gübre', inputResources: [{ resource: 'Posa', amount: 5 }], outputResource: { resource: 'Gübre', amount: 1 }, processingTime: 30, baseEnergyDraw: 3, image: '' },
 ];
 
 const FACTORY_IMAGES: Record<string, string> = {
@@ -79,7 +82,7 @@ const CROP_IMAGES: Record<string, string> = {
 
 const resourceImage = (r: string) => CROP_IMAGES[r] || FACTORY_IMAGES[r] || '';
 
-const FactorySystem: React.FC<FactorySystemProps> = ({ currentWater, currentEnergy: _currentEnergy, onWaterChange, onEnergyChange: _onEnergyChange, currentCredits, currentInventory, onInventoryChange, onCreditsChange, onFactoryEnergyConsumptionReport, isEnergyCritical }) => {
+const FactorySystem: React.FC<FactorySystemProps> = ({ currentWater, currentEnergy: _currentEnergy, onWaterChange, onEnergyChange: _onEnergyChange, currentCredits, currentInventory, onInventoryChange, onCreditsChange, onFactoryEnergyConsumptionReport, isEnergyCritical, onFertilizerAdd }) => {
   const { t } = useLanguage();
   const tname = (key: string) => t(`productionChains.${key}`) || key;
   const tcrop = (key: string) => t(`crops.${key}`) || key;
@@ -177,7 +180,16 @@ const FactorySystem: React.FC<FactorySystemProps> = ({ currentWater, currentEner
     const chain = PRODUCTION_CHAINS.find(c => c.id === job.chainId);
     if (!chain) return;
     const output = chain.outputResource;
-    onInventoryChange({ ...currentInventory, [output.resource]: (currentInventory[output.resource] || 0) + output.amount });
+    const newInv = { ...currentInventory };
+    if (chain.byProduct) {
+      newInv[chain.byProduct.resource] = (newInv[chain.byProduct.resource] || 0) + chain.byProduct.amount;
+    }
+    if (output.resource === 'Gübre') {
+      onFertilizerAdd?.(output.amount);
+    } else {
+      newInv[output.resource] = (newInv[output.resource] || 0) + output.amount;
+    }
+    onInventoryChange(newInv);
     setJobs(prev => prev.filter(j => j.id !== jobId));
   };
 
@@ -185,14 +197,23 @@ const FactorySystem: React.FC<FactorySystemProps> = ({ currentWater, currentEner
     const ready = jobs.filter(j => j.isReady);
     if (ready.length === 0) return;
     const newInv = { ...currentInventory };
+    let fertilizerGained = 0;
     ready.forEach(j => {
       const chain = PRODUCTION_CHAINS.find(c => c.id === j.chainId);
       if (chain) {
+        if (chain.byProduct) {
+          newInv[chain.byProduct.resource] = (newInv[chain.byProduct.resource] || 0) + chain.byProduct.amount;
+        }
         const out = chain.outputResource;
-        newInv[out.resource] = (newInv[out.resource] || 0) + out.amount;
+        if (out.resource === 'Gübre') {
+          fertilizerGained += out.amount;
+        } else {
+          newInv[out.resource] = (newInv[out.resource] || 0) + out.amount;
+        }
       }
     });
     onInventoryChange(newInv);
+    if (fertilizerGained > 0) onFertilizerAdd?.(fertilizerGained);
     setJobs(prev => prev.filter(j => !j.isReady));
   };
 
@@ -219,133 +240,204 @@ const FactorySystem: React.FC<FactorySystemProps> = ({ currentWater, currentEner
         </div>
       )}
 
-      {/* Active Production Grid */}
+      {/* Active Production List */}
       {activeCount > 0 && (
-        <section className="bg-[#0e0e0f]/50 backdrop-blur-sm rounded-xl border border-white/5">
-          <div className="flex items-center justify-between px-3 py-1.5 bg-[#0a0a0b]/80 rounded-t-xl border-b border-white/5">
-            <h3 className="font-mono text-[10px] text-[#00f3ff] uppercase tracking-widest font-bold">
-              <Factory className="w-3 h-3 inline mr-1" /> Aktif Üretim ({activeCount})
-            </h3>
+        <section className="flex flex-col gap-3">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#00f3ff]/10 to-[#0088ff]/10 rounded-lg border border-[#00f3ff]/20 backdrop-blur-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-6 bg-gradient-to-b from-[#00f3ff] to-[#0088ff] rounded-full" />
+              <h3 className="font-mono text-[12px] text-[#00f3ff] uppercase tracking-wider font-bold">
+                <Factory className="w-4 h-4 inline mr-2" /> Aktif Üretim
+              </h3>
+              <span className="font-mono text-[10px] text-[#849495] bg-[#0e0e0f]/60 px-2 py-1 rounded border border-white/5">
+                {activeCount} İş
+              </span>
+            </div>
             {readyCount > 0 && (
               <button onClick={collectAll}
-                className="px-2 py-1 bg-emerald-600/80 text-white font-mono text-[8px] font-bold uppercase rounded cursor-pointer active:scale-95 transition-all">
-                TOPLA ({readyCount})
+                className="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-mono text-[9px] font-bold uppercase rounded-lg cursor-pointer active:scale-95 transition-all shadow-[0_0_12px_rgba(16,185,129,0.3)]">
+                ✓ TOPLA ({readyCount})
               </button>
             )}
           </div>
-          <div className="grid grid-cols-6 gap-1.5 p-2">
-            {jobs.map(job => {
-              const chain = PRODUCTION_CHAINS.find(c => c.id === job.chainId);
-              if (!chain) return null;
-              const pct = getProgress(job);
-              const timeLeft = getTimeLeft(job);
-              return (
-                <button key={job.id} onClick={() => collectJob(job.id)} disabled={!job.isReady}
-                  className={`aspect-square rounded-lg overflow-hidden relative flex flex-col items-center justify-center border transition-all cursor-pointer bg-black ${
-                    job.isReady
-                      ? 'border-emerald-500/60 active:scale-95'
-                      : 'border-white/10'
-                  }`}>
-                  {/* Background image */}
-                  {chain.image && (
-                    <img src={chain.image} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />
-                  )}
-                  {/* Reveal overlay */}
-                  {!job.isReady && pct > 0 && (
-                    <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - pct}% 0 0)` }}>
-                      <img src={chain.image} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50 saturate-150" />
+
+          {/* Jobs List - Progress Bar Style */}
+          <div className="flex flex-col gap-2">
+            {(() => {
+              // Group jobs by output resource
+              const grouped: Record<string, ProductionJob[]> = {};
+              jobs.forEach(job => {
+                if (!grouped[job.outputResource]) grouped[job.outputResource] = [];
+                grouped[job.outputResource].push(job);
+              });
+
+              return Object.entries(grouped).map(([resource, resourceJobs]) => {
+                const readyInGroup = resourceJobs.filter(j => j.isReady).length;
+                const totalInGroup = resourceJobs.length;
+                const avgProgress = Math.round(
+                  resourceJobs.reduce((sum, j) => sum + getProgress(j), 0) / totalInGroup
+                );
+                const minTimeLeft = Math.min(...resourceJobs.map(j => getTimeLeft(j)));
+
+                return (
+                  <div key={resource} className="flex flex-col gap-2 p-3 bg-gradient-to-r from-[#0e0e0f] to-[#0a0a0b] rounded-lg border border-[#00f3ff]/20 hover:border-[#00f3ff]/40 transition-all">
+                    {/* Header */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-[10px] text-[#00f3ff] font-bold uppercase">{tcrop(resource)}</span>
+                        <span className="font-mono text-[9px] text-[#849495] bg-[#0e0e0f]/60 px-2 py-0.5 rounded border border-white/5">
+                          {readyInGroup}/{totalInGroup}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {readyInGroup === totalInGroup ? (
+                          <span className="font-mono text-[9px] text-emerald-400 font-bold uppercase">✓ Hazır</span>
+                        ) : (
+                          <span className="font-mono text-[9px] text-[#00f3ff] font-bold">{minTimeLeft}s</span>
+                        )}
+                      </div>
                     </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0f] via-transparent to-transparent" />
-                  {/* Timer top-right */}
-                  {!job.isReady && (
-                    <div className="absolute top-1 right-1.5 z-10 flex items-center gap-0.5">
-                      <span className="font-mono text-[10px] text-white font-bold drop-shadow-[0_0_6px_rgba(0,0,0,0.9)]">{timeLeft}</span>
-                      <span className="font-mono text-[5px] text-[#849495] uppercase">sn</span>
+
+                    {/* Progress Bar */}
+                    <div className="w-full h-2 bg-[#0e0e0f]/60 rounded-full overflow-hidden border border-[#00f3ff]/20">
+                      <div
+                        className={`h-full transition-all duration-1000 linear ${
+                          readyInGroup === totalInGroup
+                            ? 'bg-gradient-to-r from-emerald-500 to-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.4)]'
+                            : 'bg-gradient-to-r from-[#00f3ff] to-[#0088ff] shadow-[0_0_8px_rgba(0,243,255,0.5)]'
+                        }`}
+                        style={{ width: `${readyInGroup === totalInGroup ? 100 : avgProgress}%` }}
+                      />
                     </div>
-                  )}
-                  {/* Center content */}
-                  {job.isReady ? (
-                    <span className="text-[24px] z-10">✅</span>
-                  ) : null}
-                  {/* Label */}
-                  <span className="absolute bottom-1 left-1 right-1 font-mono text-[6px] text-white/70 truncate text-center z-10">
-                    {tcrop(chain.outputResource.resource)}
-                  </span>
-                  {/* Progress dots */}
-                  {!job.isReady && (
-                    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#00f3ff]/30 z-10">
-                      <div className="h-full bg-[#00f3ff]" style={{ width: `${pct}%`, transition: 'width 1s linear' }} />
+
+                    {/* Job Details */}
+                    <div className="flex flex-wrap gap-2">
+                      {resourceJobs.map((job) => {
+                        const chain = PRODUCTION_CHAINS.find(c => c.id === job.chainId);
+                        if (!chain) return null;
+                        const pct = getProgress(job);
+                        const timeLeft = getTimeLeft(job);
+
+                        return (
+                          <button
+                            key={job.id}
+                            onClick={() => collectJob(job.id)}
+                            disabled={!job.isReady}
+                            className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border transition-all cursor-pointer text-[8px] font-mono font-bold ${
+                              job.isReady
+                                ? 'bg-emerald-600/30 border-emerald-500/50 text-emerald-300 hover:bg-emerald-600/40'
+                                : 'bg-[#0e0e0f]/60 border-[#00f3ff]/30 text-[#00f3ff] hover:border-[#00f3ff]/60'
+                            }`}
+                          >
+                            {job.isReady ? (
+                              <>
+                                <span>✓</span>
+                                <span>Hazır</span>
+                              </>
+                            ) : (
+                              <>
+                                <span className="w-8 h-1 bg-[#0e0e0f]/60 rounded-full overflow-hidden border border-[#00f3ff]/20">
+                                  <div
+                                    className="h-full bg-gradient-to-r from-[#00f3ff] to-[#0088ff]"
+                                    style={{ width: `${pct}%` }}
+                                  />
+                                </span>
+                                <span>{timeLeft}s</span>
+                              </>
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
-                  )}
-                </button>
-              );
-            })}
+                  </div>
+                );
+              });
+            })()}
           </div>
         </section>
       )}
 
       {/* Production Chains */}
-      <section className="bg-[#0e0e0f]/50 backdrop-blur-sm rounded-xl border border-white/5">
-        <div className="flex items-center px-3 py-1.5 bg-[#0a0a0b]/80 rounded-t-xl border-b border-white/5">
-          <h3 className="font-mono text-[10px] text-[#00f3ff] uppercase tracking-widest font-bold">{t('factory.availableChains')}</h3>
+      <section className="flex flex-col gap-3">
+        {/* Header */}
+        <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-[#00f3ff]/10 to-[#0088ff]/10 rounded-lg border border-[#00f3ff]/20 backdrop-blur-sm">
+          <div className="w-1 h-6 bg-gradient-to-b from-[#00f3ff] to-[#0088ff] rounded-full" />
+          <h3 className="font-mono text-[12px] text-[#00f3ff] uppercase tracking-wider font-bold">Üretim Zincirleri</h3>
         </div>
-        <div className="p-2 grid grid-cols-2 gap-2">
+
+        {/* Chains Grid */}
+        <div className="grid grid-cols-2 gap-3">
         {PRODUCTION_CHAINS.map(chain => {
           const canAffordOne = chain.inputResources.every(r => canAffordResource(r.resource, r.amount));
           return (
             <button key={chain.id} onClick={() => { setSelectedChain(chain); setStartQty(1); }}
-              className={`glass-panel rounded-xl p-2.5 flex flex-col text-left w-full transition-all cursor-pointer active:scale-98 hover:border-[#00f3ff]/30 relative ${
-                !canAffordOne ? 'opacity-60' : ''
-              }`}>
-              {/* Timer top-right */}
-              <div className="absolute top-1.5 right-2 flex items-center gap-0.5 z-10">
-                <Timer className="w-2.5 h-2.5 text-[#00f3ff]" />
+              className={`relative overflow-hidden rounded-xl transition-all cursor-pointer active:scale-[0.98] border ${
+                canAffordOne
+                  ? 'border-[#00f3ff]/30 hover:border-[#00f3ff]/60 hover:shadow-[0_0_16px_rgba(0,243,255,0.2)]'
+                  : 'border-white/10 opacity-60'
+              } bg-gradient-to-br from-[#0e0e0f] to-[#0a0a0b] p-3`}>
+
+              {/* Neon glow for affordable chains */}
+              {canAffordOne && (
+                <div className="absolute inset-0 bg-gradient-to-br from-[#00f3ff]/5 via-transparent to-[#0088ff]/5 pointer-events-none" />
+              )}
+
+              {/* Processing time badge */}
+              <div className="absolute top-2 right-2 flex items-center gap-1 bg-[#0e0e0f]/80 px-2 py-1 rounded-lg border border-[#00f3ff]/30 backdrop-blur-sm z-10">
+                <Timer className="w-3 h-3 text-[#00f3ff]" />
                 <span className="font-mono text-[8px] text-[#00f3ff] font-bold">{chain.processingTime}s</span>
               </div>
-              <h4 className="font-mono text-[11px] text-white font-bold truncate w-full mb-2 pr-10">{tname(chain.name)}</h4>
-              <div className="flex items-start gap-2.5">
-              {/* Product image */}
-              <div className={`${canAffordOne ? 'neon-glow-wrapper' : ''} w-14 h-14 rounded-lg flex-shrink-0 relative mt-0.5`}>
-                {canAffordOne && <div className="neon-glow-glow" />
-                }<div className={`absolute inset-0 bg-gradient-to-br from-[#00f3ff]/5 via-transparent to-[#00f3ff]/10 ${canAffordOne ? 'animate-pulse' : ''} z-10 rounded-lg`} />
-                {chain.image ? (
-                  <img src={chain.image} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[18px] text-[#3a494b]">⚙️</div>
-                )}
-              </div>
-              {/* Info */}
-              <div className="flex-1 min-w-0 flex flex-col gap-1.5">
-                <p className="font-mono text-[9px] text-[#b9cacb] leading-tight">{chain.description}</p>
-                {/* Formula - single line */}
-                <div className="flex items-center gap-1 flex-nowrap overflow-hidden">
-                  {chain.inputResources.map((r, idx) => {
-                    return (
-                      <div key={r.resource} className="flex items-center gap-0.5 bg-[#0e0e0f]/60 px-1 py-0.5 rounded shrink-0">
-                        {idx > 0 && <span className="text-[7px] text-[#849495] font-mono mr-0.5">+</span>}
-                        <span className="font-mono text-[8px] text-white font-bold">{r.amount}</span>
-                        {resourceImage(r.resource) ? (
-                          <img src={resourceImage(r.resource)} alt="" className="w-3 h-3 rounded object-cover" />
+
+              {/* Title */}
+              <h4 className="font-mono text-[11px] text-[#00f3ff] font-bold mb-3 pr-16 uppercase tracking-wider">{tname(chain.name)}</h4>
+
+              {/* Content */}
+              <div className="flex items-start gap-3">
+                {/* Product image */}
+                <div className="w-16 h-16 rounded-lg flex-shrink-0 relative overflow-hidden border border-[#00f3ff]/20 bg-[#0e0e0f]/60">
+                  {chain.image ? (
+                    <img src={chain.image} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-2xl">⚙️</div>
+                  )}
+                  {canAffordOne && (
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#00f3ff]/10 to-transparent" />
+                  )}
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 min-w-0 flex flex-col gap-2">
+                  <p className="font-mono text-[8px] text-[#b9cacb] leading-tight">{chain.description}</p>
+
+                  {/* Formula */}
+                  <div className="flex items-center gap-1 flex-wrap">
+                    {chain.inputResources.map((r, idx) => {
+                      return (
+                        <div key={r.resource} className="flex items-center gap-1 bg-[#0e0e0f]/80 px-1.5 py-0.5 rounded border border-white/10 backdrop-blur-sm">
+                          {idx > 0 && <span className="text-[7px] text-[#849495] font-mono">+</span>}
+                          <span className="font-mono text-[7px] text-white font-bold">{r.amount}</span>
+                          {resourceImage(r.resource) ? (
+                            <img src={resourceImage(r.resource)} alt="" className="w-3 h-3 rounded object-cover" />
+                          ) : (
+                            <span className="text-[7px]">💧</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                    <span className="text-[9px] text-[#00f3ff] font-mono font-bold">→</span>
+                    <div className="flex items-center gap-1 bg-emerald-600/30 px-1.5 py-0.5 rounded border border-emerald-500/40 backdrop-blur-sm">
+                      <span className="font-mono text-[7px] text-emerald-300 font-bold">{chain.outputResource.amount}</span>
+                      <div className="w-3 h-3 rounded overflow-hidden bg-[#0e0e0f] border border-emerald-500/30 flex-shrink-0">
+                        {chain.image ? (
+                          <img src={chain.image} alt="" className="w-full h-full object-cover" />
                         ) : (
-                          <span className="text-[8px]">💧</span>
+                          <div className="w-full h-full flex items-center justify-center text-[5px]">⚙️</div>
                         )}
                       </div>
-                    );
-                  })}
-                  <span className="text-[10px] text-[#00f3ff] font-mono shrink-0">→</span>
-                  <div className="flex items-center gap-0.5 bg-[#0e0e0f]/60 px-1 py-0.5 rounded shrink-0">
-                    <span className="font-mono text-[8px] text-emerald-400 font-bold">{chain.outputResource.amount}</span>
-                    <div className="w-3 h-3 rounded overflow-hidden bg-[#0e0e0f] border border-white/10 flex-shrink-0">
-                      {chain.image ? (
-                        <img src={chain.image} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[5px] text-[#3a494b]">⚙️</div>
-                      )}
                     </div>
                   </div>
                 </div>
-              </div>
               </div>
             </button>
           );
@@ -433,6 +525,28 @@ const FactorySystem: React.FC<FactorySystemProps> = ({ currentWater, currentEner
                       </div>
                     )}
                   </div>
+                </div>
+              </div>
+
+              {/* Çıktılar */}
+              <div className="bg-[#0e0e0f]/60 rounded-lg p-3">
+                <span className="font-mono text-[9px] text-[#849495] uppercase tracking-wider">Çıktılar</span>
+                <div className="flex items-center gap-3 mt-2">
+                  <div className="flex items-center gap-1.5 bg-emerald-600/20 px-2 py-1.5 rounded border border-emerald-500/30">
+                    <img src={selectedChain.image || resourceImage(selectedChain.outputResource.resource)} alt="" className="w-5 h-5 rounded object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                    <span className="font-mono text-[10px] text-emerald-300 font-bold">
+                      {selectedChain.outputResource.amount * startQty}× {tcrop(selectedChain.outputResource.resource)}
+                    </span>
+                  </div>
+                  {selectedChain.byProduct && (
+                    <div className="flex items-center gap-1.5 bg-amber-600/20 px-2 py-1.5 rounded border border-amber-500/30">
+                      <span className="font-mono text-[9px] text-amber-300">🗑️</span>
+                      <span className="font-mono text-[10px] text-amber-300 font-bold">
+                        {selectedChain.byProduct.amount * startQty}× {selectedChain.byProduct.resource}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 

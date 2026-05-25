@@ -91,10 +91,22 @@ const tr: Translations = {
   event: {
     title: 'Çevre Kontrolü',
     lastEvent: 'Son Olay',
-    idle: 'Beklemede',
-    potentialEffect: 'Olası Etki',
+    idle: 'Aktif olay yok — ortam stabil',
+    potentialEffect: 'Olası Etkiler',
     none: 'Yok',
-    left: 'kaldı',
+    left: 's kaldı',
+    desc: {
+      radiation: 'Maks ⚡\'in %5\'ini ve 💧\'in %5\'ini saniyede tüketir',
+      pipeburst: 'Boru patlar, anlık 💧\'in %20\'sini kaybedersin',
+      hacker: 'Anlık ₿\'in %20\'sini çalar',
+      fire: 'Yangın depodaki malların %15\'ini yok eder',
+      overload: 'Aşırı yük saniyede maks ⚡\'in %8\'ini tüketir',
+      strike: 'Grev pompaları durdurur, saniyede maks 💧\'in %5\'i kaybolur',
+      blackmarket: 'Karaborsa anlaşması anlık ₿\'in %25\'ini kazandırır',
+      condensation: 'Yoğunlaşma saniyede maks 💧\'in %8\'ini kazandırır',
+      powersurge: 'Enerji dalgası saniyede maks ⚡\'in %10\'unu verir',
+      supplydrop: 'İkmal malzemesi anlık ₿\'in %15\'ini getirir',
+    },
   },
   prestige: {
     title: 'Prestij Sistemi',
@@ -132,6 +144,8 @@ const tr: Translations = {
     'Quantum Serum': 'Kuantum Serumu',
     'Nano Coating': 'Nano Kaplama',
     'Void Crystal': 'Void Kristali',
+    'Posa': 'Posa',
+    'Gübre': 'Gübre',
   },
   factoryTypes: {
     'Nano Press': 'Nano Pres',
@@ -153,6 +167,7 @@ const tr: Translations = {
     'Lumina to Serum': 'Luminadan Seruma',
     'Nano Coating Production': 'Nano Kaplama Üretimi',
     'Void Crystal Synthesis': 'Void Kristal Sentezi',
+    'Posa → Gübre': 'Posa → Gübre',
   },
   researchNames: {
     'Hydroponic Efficiency I': 'Hidroponik Verimlilik I',
@@ -175,9 +190,15 @@ const tr: Translations = {
   },
   events: {
     'Radiation Leak': 'Radyasyon Sızıntısı',
-    'Pipe Condensation Surge': 'Boru Yoğuşma Dalgası',
+    'Pipe Burst': 'Boru Patlaması',
     'Hacker Attack': 'Hacker Saldırısı',
-    'Black Market Opportunity': 'Karaborsa Fırsatı',
+    'Warehouse Fire': 'Depo Yangını',
+    'Factory Overload': 'Fabrika Aşırı Yüklenmesi',
+    'Workers Strike': 'İşçi Grevi',
+    'Black Market Deal': 'Karaborsa Anlaşması',
+    'Condensation Surge': 'Yoğunlaşma Dalgası',
+    'Power Surge': 'Enerji Dalgalanması',
+    'Supply Drop': 'İkmal Malzemesi',
   },
   district: {
     title: 'Yeraltı Bölgeleri',
@@ -190,6 +211,11 @@ const tr: Translations = {
     'Abandoned Lab': 'Terk Edilmiş Laboratuvar',
     'Toxic Layer': 'Toksik Katman',
     'MegaCorp Ruins': 'MegaCorp Harabeleri',
+    'humid-cave-bonus': '+Su Verimi',
+    'reactor-zone-bonus': '+Enerji Üretimi',
+    'abandoned-lab-bonus': '+Araştırma Hızı',
+    'toxic-layer-bonus': 'Nadir Mutasyon Şansı',
+    'megacorp-ruins-bonus': 'Yüksek Risk/Ödül',
   },
   market: {
     title: 'Pazar Yeri',
@@ -206,6 +232,9 @@ const tr: Translations = {
     contracts: 'Sözleşme',
     districts: 'Bölgeler',
     system: 'Sistem',
+  },
+  notification: {
+    clickToView: 'Sistemde görüntülemek için tıkla',
   },
   resourceLabels: {
     Credits: 'Kredi',
